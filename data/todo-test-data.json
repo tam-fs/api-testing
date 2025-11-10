@@ -1,0 +1,208 @@
+{
+  "validTodoData": {
+    "minimalTodo": {
+      "title": "New Todo Item"
+    },
+    "completeTodo": {
+      "title": "Complete Todo",
+      "description": "This is a complete todo with all fields",
+      "status": "in_progress",
+      "priority": "high",
+      "due_date": "2025-12-31 23:59:59",
+      "user_id": 1
+    },
+    "todoWithDefaults": {
+      "title": "Todo with Defaults"
+    },
+    "pendingTodo": {
+      "title": "Pending Todo",
+      "status": "pending",
+      "priority": "low"
+    },
+    "inProgressTodo": {
+      "title": "In Progress Todo",
+      "status": "in_progress",
+      "priority": "medium"
+    },
+    "completedTodo": {
+      "title": "Completed Todo",
+      "status": "completed",
+      "priority": "high"
+    },
+    "lowPriorityTodo": {
+      "title": "Low Priority Todo",
+      "priority": "low"
+    },
+    "mediumPriorityTodo": {
+      "title": "Medium Priority Todo",
+      "priority": "medium"
+    },
+    "highPriorityTodo": {
+      "title": "High Priority Todo",
+      "priority": "high"
+    },
+    "todoWithDueDate": {
+      "title": "Todo with Due Date",
+      "due_date": "2025-12-31 23:59:59"
+    },
+    "todoWithDescription": {
+      "title": "Todo with Description",
+      "description": "This is a detailed description of the todo item"
+    },
+    "firstMultipleTodo": {
+      "title": "First Todo",
+      "priority": "high"
+    },
+    "secondMultipleTodo": {
+      "title": "Second Todo",
+      "priority": "low"
+    },
+    "todoForGetVerification": {
+      "title": "Unique Todo",
+      "description": "Testing creation",
+      "status": "pending",
+      "priority": "high"
+    }
+  },
+  "invalidTodoData": {
+    "todoWithoutTitle": {
+      "title": "",
+      "description": "Todo without title"
+    }
+  },
+  "sampleTodos": {
+    "todo1": {
+      "title": "Todo 1"
+    },
+    "todo2": {
+      "title": "Todo 2"
+    }
+  },
+  "expectedResponses": {
+    "defaultValues": {
+      "status": "pending",
+      "priority": "medium",
+      "user_id": 1
+    },
+    "statusCodes": {
+      "created": 201,
+      "success": 200,
+      "badRequest": 400,
+      "notFound": 404
+    },
+    "resetDatabase": {
+      "minTodos": 0
+    }
+  },
+  "testCases": {
+    "TC018": {
+      "id": "TC018",
+      "description": "POST create todo with all required fields",
+      "dataKey": "minimalTodo",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "title": "New Todo Item"
+      }
+    },
+    "TC019": {
+      "id": "TC019",
+      "description": "POST create todo with all fields",
+      "dataKey": "completeTodo",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "title": "Complete Todo",
+        "description": "This is a complete todo with all fields",
+        "status": "in_progress",
+        "priority": "high",
+        "user_id": 1
+      }
+    },
+    "TC020": {
+      "id": "TC020",
+      "description": "POST create todo with default values",
+      "dataKey": "todoWithDefaults",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "title": "Todo with Defaults",
+        "status": "pending",
+        "priority": "medium",
+        "user_id": 1
+      }
+    },
+    "TC021": {
+      "id": "TC021",
+      "description": "POST create todo with status: pending",
+      "dataKey": "pendingTodo",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "status": "pending"
+      }
+    },
+    "TC022": {
+      "id": "TC022",
+      "description": "POST create todo with status: in_progress",
+      "dataKey": "inProgressTodo",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "status": "in_progress"
+      }
+    },
+    "TC023": {
+      "id": "TC023",
+      "description": "POST create todo with status: completed",
+      "dataKey": "completedTodo",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "status": "completed"
+      }
+    },
+    "TC024": {
+      "id": "TC024",
+      "description": "POST create todo with priority: low",
+      "dataKey": "lowPriorityTodo",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "priority": "low"
+      }
+    },
+    "TC025": {
+      "id": "TC025",
+      "description": "POST create todo with priority: medium",
+      "dataKey": "mediumPriorityTodo",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "priority": "medium"
+      }
+    },
+    "TC026": {
+      "id": "TC026",
+      "description": "POST create todo with priority: high",
+      "dataKey": "highPriorityTodo",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "priority": "high"
+      }
+    },
+    "TC027": {
+      "id": "TC027",
+      "description": "POST create todo with due_date",
+      "dataKey": "todoWithDueDate",
+      "expectedStatus": 201
+    },
+    "TC028": {
+      "id": "TC028",
+      "description": "POST create todo with description",
+      "dataKey": "todoWithDescription",
+      "expectedStatus": 201,
+      "expectedResponse": {
+        "description": "This is a detailed description of the todo item"
+      }
+    },
+    "TC029": {
+      "id": "TC029",
+      "description": "POST create todo without title returns 400",
+      "dataKey": "todoWithoutTitle",
+      "expectedStatus": 400
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "playwright-testing-setup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "typecheck": "tsc --noEmit",
+    "test:dev": "npx cross-env TEST_ENV=dev npx playwright test",
+    "test:staging": "npx cross-env TEST_ENV=stg npx playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/dotenv": "^6.1.1",
+    "@types/node": "^22.14.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.5.0"
+  },
+  "dependencies": {
+    "rimraf": "^6.0.1",
+    "zod": "^4.1.12"
+  }
+}
