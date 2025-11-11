@@ -1,6 +1,9 @@
 import { test } from '../base-test';
+import { STATUS_CODES } from '../../constants/test-constants';
+import { TodoInput, TodoUpdate, TodoPatch, Status, Priority } from '../../interfaces/todo.interface';
 
 test.describe('Todo API - Integration Tests', () => {
+
     test.beforeEach(async ({ todoApiPage }) => {
         // Reset database before each test to ensure clean state
         const resetResponse = await todoApiPage.resetDatabase();
@@ -10,14 +13,16 @@ test.describe('Todo API - Integration Tests', () => {
 
     test('TC024 - Complete workflow: Create → Read → Update → Delete', async ({ todoApiPage }) => {
         // 1. CREATE: Create a new todo
-        const createResponse = await todoApiPage.createTodo({
+        const integrationTestTodo: TodoInput = {
             title: 'Integration Test Todo',
             description: 'Testing complete workflow',
-            status: 'pending',
-            priority: 'medium'
-        });
+            status: Status.PENDING,
+            priority: Priority.MEDIUM
+        };
+
+        const createResponse = await todoApiPage.createTodo(integrationTestTodo);
         const createBody = await todoApiPage.getResponseBody(createResponse);
-        await todoApiPage.verifyStatusCode(createResponse, 201);
+        await todoApiPage.verifyStatusCode(createResponse, STATUS_CODES.CREATED);
         const todoId = createBody.todo.id;
 
         // 2. READ: Verify todo exists in GET all todos
@@ -29,20 +34,22 @@ test.describe('Todo API - Integration Tests', () => {
         // 3. READ: Get single todo by ID
         const getByIdResponse = await todoApiPage.getTodoById(todoId);
         const getByIdBody = await todoApiPage.getResponseBody(getByIdResponse);
-        await todoApiPage.verifyStatusCode(getByIdResponse, 200);
+        await todoApiPage.verifyStatusCode(getByIdResponse, STATUS_CODES.OK);
         await todoApiPage.verifyTodoTitle(getByIdBody, 'Integration Test Todo');
         await todoApiPage.verifyTodoStatus(getByIdBody, 'pending');
 
         // 4. UPDATE: Update todo with PUT
-        const updateResponse = await todoApiPage.updateTodo({
+        const updatedIntegrationTodo: TodoUpdate = {
             id: todoId,
             title: 'Updated Integration Test Todo',
-            description: 'Updated description',
-            status: 'completed',
-            priority: 'high'
-        });
+            description: 'Testing complete workflow - updated',
+            status: Status.COMPLETED,
+            priority: Priority.HIGH
+        };
+
+        const updateResponse = await todoApiPage.updateTodo(updatedIntegrationTodo);
         const updateBody = await todoApiPage.getResponseBody(updateResponse);
-        await todoApiPage.verifyStatusCode(updateResponse, 200);
+        await todoApiPage.verifyStatusCode(updateResponse, STATUS_CODES.OK);
         await todoApiPage.verifyTodoTitle(updateBody, 'Updated Integration Test Todo');
         await todoApiPage.verifyTodoStatus(updateBody, 'completed');
 
@@ -54,34 +61,36 @@ test.describe('Todo API - Integration Tests', () => {
 
         // 6. DELETE: Delete the todo
         const deleteResponse = await todoApiPage.deleteTodo(todoId);
-        await todoApiPage.verifyStatusCode(deleteResponse, 200);
+        await todoApiPage.verifyStatusCode(deleteResponse, STATUS_CODES.OK);
 
         // 7. VERIFY: Confirm todo is deleted
         const confirmDeleteResponse = await todoApiPage.getTodoById(todoId);
-        await todoApiPage.verifyStatusCode(confirmDeleteResponse, 404);
+        await todoApiPage.verifyStatusCode(confirmDeleteResponse, STATUS_CODES.NOT_FOUND);
     });
 
     test('TC025 - Workflow: Create → PATCH multiple times → Verify final state', async ({ todoApiPage }) => {
         // Create todo
-        const createResponse = await todoApiPage.createTodo({
-            title: 'Task to be Updated',
+        const taskToBeUpdated: TodoInput = {
+            title: 'Task to Update',
             description: 'Initial description',
-            status: 'pending',
-            priority: 'low'
-        });
+            status: Status.PENDING,
+            priority: Priority.LOW
+        };
+
+        const createResponse = await todoApiPage.createTodo(taskToBeUpdated);
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
 
         // PATCH 1: Update status
         await todoApiPage.patchTodo({
             id: todoId,
-            status: 'in_progress'
+            status: Status.IN_PROGRESS
         });
 
         // PATCH 2: Update priority
         await todoApiPage.patchTodo({
             id: todoId,
-            priority: 'high'
+            priority: Priority.HIGH
         });
 
         // PATCH 3: Update title
@@ -93,7 +102,7 @@ test.describe('Todo API - Integration Tests', () => {
         // PATCH 4: Complete the task
         const finalPatchResponse = await todoApiPage.patchTodo({
             id: todoId,
-            status: 'completed'
+            status: Status.COMPLETED
         });
         const finalPatchBody = await todoApiPage.getResponseBody(finalPatchResponse);
 
@@ -106,21 +115,30 @@ test.describe('Todo API - Integration Tests', () => {
 
     test('TC026 - Workflow: Create multiple → Update all → Delete selected ones', async ({ todoApiPage }) => {
         // Create multiple todos
-        const todo1Response = await todoApiPage.createTodo({
-            title: 'Todo 1',
-            status: 'pending',
-            priority: 'low'
-        });
-        const todo2Response = await todoApiPage.createTodo({
-            title: 'Todo 2',
-            status: 'pending',
-            priority: 'medium'
-        });
-        const todo3Response = await todoApiPage.createTodo({
-            title: 'Todo 3',
-            status: 'pending',
-            priority: 'high'
-        });
+        const todo1: TodoInput = {
+            title: 'Multiple Todo 1',
+            description: 'First todo',
+            status: Status.PENDING,
+            priority: Priority.LOW
+        };
+
+        const todo2: TodoInput = {
+            title: 'Multiple Todo 2',
+            description: 'Second todo',
+            status: Status.PENDING,
+            priority: Priority.MEDIUM
+        };
+
+        const todo3: TodoInput = {
+            title: 'Multiple Todo 3',
+            description: 'Third todo',
+            status: Status.PENDING,
+            priority: Priority.HIGH
+        };
+
+        const todo1Response = await todoApiPage.createTodo(todo1);
+        const todo2Response = await todoApiPage.createTodo(todo2);
+        const todo3Response = await todoApiPage.createTodo(todo3);
 
         const body1 = await todoApiPage.getResponseBody(todo1Response);
         const body2 = await todoApiPage.getResponseBody(todo2Response);
@@ -131,13 +149,13 @@ test.describe('Todo API - Integration Tests', () => {
         const id3 = body3.todo.id;
 
         // Update all to in_progress
-        await todoApiPage.patchTodo({ id: id1, status: 'in_progress' });
-        await todoApiPage.patchTodo({ id: id2, status: 'in_progress' });
-        await todoApiPage.patchTodo({ id: id3, status: 'in_progress' });
+        await todoApiPage.patchTodo({ id: id1, status: Status.IN_PROGRESS });
+        await todoApiPage.patchTodo({ id: id2, status: Status.IN_PROGRESS });
+        await todoApiPage.patchTodo({ id: id3, status: Status.IN_PROGRESS });
 
         // Complete todo 1 and 3
-        await todoApiPage.patchTodo({ id: id1, status: 'completed' });
-        await todoApiPage.patchTodo({ id: id3, status: 'completed' });
+        await todoApiPage.patchTodo({ id: id1, status: Status.COMPLETED });
+        await todoApiPage.patchTodo({ id: id3, status: Status.COMPLETED });
 
         // Delete completed todos
         await todoApiPage.deleteTodo(id1);
@@ -146,14 +164,14 @@ test.describe('Todo API - Integration Tests', () => {
         // Verify todo 2 still exists
         const getTodo2Response = await todoApiPage.getTodoById(id2);
         const getTodo2Body = await todoApiPage.getResponseBody(getTodo2Response);
-        await todoApiPage.verifyStatusCode(getTodo2Response, 200);
+        await todoApiPage.verifyStatusCode(getTodo2Response, STATUS_CODES.OK);
         await todoApiPage.verifyTodoStatus(getTodo2Body, 'in_progress');
 
         // Verify todo 1 and 3 are deleted
         const getTodo1Response = await todoApiPage.getTodoById(id1);
         const getTodo3Response = await todoApiPage.getTodoById(id3);
-        await todoApiPage.verifyStatusCode(getTodo1Response, 404);
-        await todoApiPage.verifyStatusCode(getTodo3Response, 404);
+        await todoApiPage.verifyStatusCode(getTodo1Response, STATUS_CODES.NOT_FOUND);
+        await todoApiPage.verifyStatusCode(getTodo3Response, STATUS_CODES.NOT_FOUND);
     });
 
     test('TC027 - Workflow: Reset → Create → Reset → Verify clean state', async ({ todoApiPage }) => {
@@ -166,9 +184,27 @@ test.describe('Todo API - Integration Tests', () => {
         const initialCount = initialBody.todos.length;
 
         // Create new todos
-        await todoApiPage.createTodo({ title: 'New Todo 1' });
-        await todoApiPage.createTodo({ title: 'New Todo 2' });
-        await todoApiPage.createTodo({ title: 'New Todo 3' });
+        const newTodo1: TodoInput = {
+            title: 'New Todo 1',
+            status: Status.PENDING,
+            priority: Priority.LOW
+        };
+
+        const newTodo2: TodoInput = {
+            title: 'New Todo 2',
+            status: Status.PENDING,
+            priority: Priority.MEDIUM
+        };
+
+        const newTodo3: TodoInput = {
+            title: 'New Todo 3',
+            status: Status.PENDING,
+            priority: Priority.HIGH
+        };
+
+        await todoApiPage.createTodo(newTodo1);
+        await todoApiPage.createTodo(newTodo2);
+        await todoApiPage.createTodo(newTodo3);
 
         // Verify count increased
         const afterCreateResponse = await todoApiPage.getAllTodos();
@@ -178,7 +214,7 @@ test.describe('Todo API - Integration Tests', () => {
         // Reset again
         const resetResponse = await todoApiPage.resetDatabase();
         const resetBody = await todoApiPage.getResponseBody(resetResponse);
-        await todoApiPage.verifyStatusCode(resetResponse, 200);
+        await todoApiPage.verifyStatusCode(resetResponse, STATUS_CODES.OK);
         await todoApiPage.verifySuccessField(resetBody, true);
 
         // Verify back to initial state
@@ -189,18 +225,15 @@ test.describe('Todo API - Integration Tests', () => {
 
     test('TC028 - Workflow: Update with PUT vs PATCH comparison', async ({ todoApiPage }) => {
         // Create two identical todos
-        const todo1Response = await todoApiPage.createTodo({
+        const originalTodo: TodoInput = {
             title: 'Original Title',
             description: 'Original description',
-            status: 'pending',
-            priority: 'low'
-        });
-        const todo2Response = await todoApiPage.createTodo({
-            title: 'Original Title',
-            description: 'Original description',
-            status: 'pending',
-            priority: 'low'
-        });
+            status: Status.PENDING,
+            priority: Priority.MEDIUM
+        };
+
+        const todo1Response = await todoApiPage.createTodo(originalTodo);
+        const todo2Response = await todoApiPage.createTodo(originalTodo);
 
         const body1 = await todoApiPage.getResponseBody(todo1Response);
         const body2 = await todoApiPage.getResponseBody(todo2Response);
@@ -209,20 +242,24 @@ test.describe('Todo API - Integration Tests', () => {
         const todoId2 = body2.todo.id;
 
         // Update todo1 with PUT (must provide all fields)
-        const putResponse = await todoApiPage.updateTodo({
+        const putUpdate: TodoUpdate = {
             id: todoId1,
             title: 'Original Title',
             description: 'Original description',
-            status: 'completed',  // Only want to change this
-            priority: 'low'
-        });
+            status: Status.COMPLETED,
+            priority: Priority.MEDIUM
+        };
+
+        const putResponse = await todoApiPage.updateTodo(putUpdate);
         const putBody = await todoApiPage.getResponseBody(putResponse);
 
         // Update todo2 with PATCH (only provide changed field)
-        const patchResponse = await todoApiPage.patchTodo({
+        const patchUpdate: TodoPatch = {
             id: todoId2,
-            status: 'completed'  // Only change this
-        });
+            status: Status.COMPLETED
+        };
+
+        const patchResponse = await todoApiPage.patchTodo(patchUpdate);
         const patchBody = await todoApiPage.getResponseBody(patchResponse);
 
         // Both should have status completed
@@ -238,38 +275,51 @@ test.describe('Todo API - Integration Tests', () => {
 
     test('TC029 - Workflow: Create with invalid data → Fix → Success', async ({ todoApiPage }) => {
         // Try to create without title (should fail)
-        const invalidResponse = await todoApiPage.createTodo({
+        const invalidTodo: TodoInput = {
             title: '' as any,
-            description: 'No title provided'
-        });
-        await todoApiPage.verifyStatusCode(invalidResponse, 400);
+            description: 'Missing title'
+        };
+
+        const invalidResponse = await todoApiPage.createTodo(invalidTodo);
+        await todoApiPage.verifyStatusCode(invalidResponse, STATUS_CODES.BAD_REQUEST);
 
         // Create with valid title
-        const validResponse = await todoApiPage.createTodo({
+        const validTodo: TodoInput = {
             title: 'Valid Title',
-            description: 'With proper title'
-        });
+            description: 'Valid description',
+            status: Status.PENDING,
+            priority: Priority.LOW
+        };
+
+        const validResponse = await todoApiPage.createTodo(validTodo);
         const validBody = await todoApiPage.getResponseBody(validResponse);
-        await todoApiPage.verifyStatusCode(validResponse, 201);
+        await todoApiPage.verifyStatusCode(validResponse, STATUS_CODES.CREATED);
         await todoApiPage.verifySuccessField(validBody, true);
 
         const todoId = validBody.todo.id;
 
         // Try to update with empty title (should fail)
-        const invalidUpdateResponse = await todoApiPage.updateTodo({
+        const invalidUpdate: TodoUpdate = {
             id: todoId,
-            title: '' as any
-        });
-        await todoApiPage.verifyStatusCode(invalidUpdateResponse, 400);
+            title: '' as any,
+            status: Status.PENDING,
+            priority: Priority.LOW
+        };
+
+        const invalidUpdateResponse = await todoApiPage.updateTodo(invalidUpdate);
+        await todoApiPage.verifyStatusCode(invalidUpdateResponse, STATUS_CODES.BAD_REQUEST);
 
         // Update with valid data
-        const validUpdateResponse = await todoApiPage.updateTodo({
+        const validUpdate: TodoUpdate = {
             id: todoId,
             title: 'Updated Valid Title',
-            status: 'completed',
-            priority: 'high'
-        });
-        await todoApiPage.verifyStatusCode(validUpdateResponse, 200);
+            description: 'Valid description',
+            status: Status.COMPLETED,
+            priority: Priority.HIGH
+        };
+
+        const validUpdateResponse = await todoApiPage.updateTodo(validUpdate);
+        await todoApiPage.verifyStatusCode(validUpdateResponse, STATUS_CODES.OK);
 
         // Verify final state
         const finalResponse = await todoApiPage.getTodoById(todoId);
@@ -285,15 +335,36 @@ test.describe('Todo API - Integration Tests', () => {
         const initialCount = initialBody.todos.length;
 
         // Create todos with delays to ensure different timestamps
-        const todo1Response = await todoApiPage.createTodo({ title: 'First Todo' });
+        const firstTodo: TodoInput = {
+            title: 'First Todo',
+            description: 'First in sequence',
+            status: Status.PENDING,
+            priority: Priority.LOW
+        };
+
+        const secondTodo: TodoInput = {
+            title: 'Second Todo',
+            description: 'Second in sequence',
+            status: Status.PENDING,
+            priority: Priority.MEDIUM
+        };
+
+        const thirdTodo: TodoInput = {
+            title: 'Third Todo',
+            description: 'Third in sequence',
+            status: Status.PENDING,
+            priority: Priority.HIGH
+        };
+
+        const todo1Response = await todoApiPage.createTodo(firstTodo);
         const body1 = await todoApiPage.getResponseBody(todo1Response);
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        const todo2Response = await todoApiPage.createTodo({ title: 'Second Todo' });
+        const todo2Response = await todoApiPage.createTodo(secondTodo);
         const body2 = await todoApiPage.getResponseBody(todo2Response);
         await new Promise(resolve => setTimeout(resolve, 100));
 
-        const todo3Response = await todoApiPage.createTodo({ title: 'Third Todo' });
+        const todo3Response = await todoApiPage.createTodo(thirdTodo);
         const body3 = await todoApiPage.getResponseBody(todo3Response);
 
         // Get all todos

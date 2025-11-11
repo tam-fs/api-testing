@@ -1,6 +1,16 @@
-import { test } from '../base-test';
+import { test, BaseTest } from '../base-test';
+import { STATUS_CODES, TEST_IDS } from '../../constants/test-constants';
+import { TodoInput } from '../../interfaces/todo.interface';
 
 test.describe('Todo API - Schema Validation', () => {
+    const baseTest = new BaseTest();
+    let testData: any;
+
+    test.beforeAll(async () => {
+        // Load test data from JSON file
+        testData = baseTest.loadDataInfo('todo-test-data.json');
+    });
+
     test.beforeEach(async ({ todoApiPage }) => {
         // Reset database before each test to ensure clean state
         const resetResponse = await todoApiPage.resetDatabase();
@@ -14,7 +24,7 @@ test.describe('Todo API - Schema Validation', () => {
         const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, 200);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
 
         // Verify schema
         await todoApiPage.verifyGetAllTodosSchema(responseBody);
@@ -26,17 +36,13 @@ test.describe('Todo API - Schema Validation', () => {
     });
 
     test('TC002 - Verify schema of POST create todo response', async ({ todoApiPage }) => {
-        // Create a new todo
-        const response = await todoApiPage.createTodo({
-            title: 'New Todo for Schema Test',
-            description: 'Testing POST schema validation',
-            status: 'pending',
-            priority: 'high'
-        });
+        // Create a new todo using test data from JSON
+        const todoData: TodoInput = testData.validTodoData.todoForGetVerification;
+        const response = await todoApiPage.createTodo(todoData);
         const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, 201);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
         // Verify schema
         await todoApiPage.verifyCreateOrUpdateTodoSchema(responseBody);
@@ -50,11 +56,11 @@ test.describe('Todo API - Schema Validation', () => {
 
     test('TC003 - Verify schema of error response (404 Not Found)', async ({ todoApiPage }) => {
         // Try to get a non-existent todo
-        const response = await todoApiPage.getTodoById(999999);
+        const response = await todoApiPage.getTodoById(TEST_IDS.NON_EXISTENT_ID);
         const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, 404);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.NOT_FOUND);
 
         // Verify error schema
         await todoApiPage.verifyErrorResponseSchema(responseBody);

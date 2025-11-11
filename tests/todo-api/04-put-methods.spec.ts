@@ -1,6 +1,15 @@
-import { test } from '../base-test';
+import { test, BaseTest } from '../base-test';
+import { STATUS_CODES, TEST_IDS } from '../../constants/test-constants';
+import { TodoInput, TodoUpdate, Status, Priority } from '../../interfaces/todo.interface';
 
 test.describe('Todo API - PUT Methods', () => {
+    const baseTest = new BaseTest();
+    let testData: any;
+
+    test.beforeAll(async () => {
+        testData = baseTest.loadDataInfo('todo-test-data.json');
+    });
+
     test.beforeEach(async ({ todoApiPage }) => {
         const resetResponse = await todoApiPage.resetDatabase();
         const resetBody = await todoApiPage.getResponseBody(resetResponse);
@@ -8,28 +17,32 @@ test.describe('Todo API - PUT Methods', () => {
     });
 
     test('TC012 - PUT update todo with all fields', async ({ todoApiPage }) => {
-        const createResponse = await todoApiPage.createTodo({
+        const originalTodo: TodoInput = {
             title: 'Original Title',
             description: 'Original description',
-            status: 'pending',
-            priority: 'low',
+            status: Status.PENDING,
+            priority: Priority.LOW,
             user_id: 1
-        });
+        };
+
+        const createResponse = await todoApiPage.createTodo(originalTodo);
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
 
-        const response = await todoApiPage.updateTodo({
+        const updatedTodo: TodoUpdate = {
             id: todoId,
             title: 'Updated Title',
             description: 'Updated description',
-            status: 'completed',
-            priority: 'high',
+            status: Status.COMPLETED,
+            priority: Priority.HIGH,
             due_date: '2025-12-31 23:59:59',
             user_id: 1
-        });
+        };
+
+        const response = await todoApiPage.updateTodo(updatedTodo);
         const responseBody = await todoApiPage.getResponseBody(response);
 
-        await todoApiPage.verifyStatusCode(response, 200);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
         await todoApiPage.verifySuccessField(responseBody, true);
         await todoApiPage.verifyTodoId(responseBody, todoId);
         await todoApiPage.verifyTodoTitle(responseBody, 'Updated Title');
@@ -39,36 +52,42 @@ test.describe('Todo API - PUT Methods', () => {
     });
 
     test('TC013 - PUT update todo status from pending to in_progress', async ({ todoApiPage }) => {
-        const createResponse = await todoApiPage.createTodo({
+        const originalTodo: TodoInput = {
             title: 'Todo to Update',
-            status: 'pending',
-            priority: 'medium'
-        });
+            status: Status.PENDING,
+            priority: Priority.MEDIUM
+        };
+
+        const createResponse = await todoApiPage.createTodo(originalTodo);
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
 
-        const response = await todoApiPage.updateTodo({
+        const updatedTodo: TodoUpdate = {
             id: todoId,
             title: 'Todo to Update',
-            status: 'in_progress',
-            priority: 'medium'
-        });
+            status: Status.IN_PROGRESS,
+            priority: Priority.MEDIUM
+        };
+
+        const response = await todoApiPage.updateTodo(updatedTodo);
         const responseBody = await todoApiPage.getResponseBody(response);
 
-        await todoApiPage.verifyStatusCode(response, 200);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
         await todoApiPage.verifyTodoStatus(responseBody, 'in_progress');
     });
 
     test('TC014 - PUT update non-existent todo returns 404', async ({ todoApiPage }) => {
-        const response = await todoApiPage.updateTodo({
-            id: 999999,
+        const updateData: TodoUpdate = {
+            id: TEST_IDS.NON_EXISTENT_ID,
             title: 'Non-existent Todo',
-            status: 'pending',
-            priority: 'medium'
-        });
+            status: Status.PENDING,
+            priority: Priority.MEDIUM
+        };
+
+        const response = await todoApiPage.updateTodo(updateData);
         const responseBody = await todoApiPage.getResponseBody(response);
 
-        await todoApiPage.verifyStatusCode(response, 404);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.NOT_FOUND);
         await todoApiPage.verifySuccessField(responseBody, false);
     });
 
@@ -79,13 +98,15 @@ test.describe('Todo API - PUT Methods', () => {
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
 
-        const response = await todoApiPage.updateTodo({
+        const invalidUpdate: TodoUpdate = {
             id: todoId,
             title: '' as any
-        });
+        };
+
+        const response = await todoApiPage.updateTodo(invalidUpdate);
         const responseBody = await todoApiPage.getResponseBody(response);
 
-        await todoApiPage.verifyStatusCode(response, 400);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.BAD_REQUEST);
         await todoApiPage.verifySuccessField(responseBody, false);
     });
 });

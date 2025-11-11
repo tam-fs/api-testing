@@ -3,6 +3,7 @@ import { CommonPage } from '../common-page';
 import { TodoApiLocators } from '../../locators/todo-api/todo-api-locators';
 import { step } from '../../utils/logging';
 import { SchemaValidator } from '../../utils/schema-validator';
+import { TodoInput, TodoUpdate, TodoPatch } from '../../interfaces/todo.interface';
 
 export class TodoApiPage extends CommonPage {
     private readonly todoApiLocators: TodoApiLocators;
@@ -50,14 +51,7 @@ export class TodoApiPage extends CommonPage {
      * @returns APIResponse
      */
     @step('Create a new todo')
-    async createTodo(todoData: {
-        title: string;
-        description?: string;
-        status?: 'pending' | 'in_progress' | 'completed';
-        priority?: 'low' | 'medium' | 'high';
-        due_date?: string;
-        user_id?: number;
-    }): Promise<APIResponse> {
+    async createTodo(todoData: TodoInput): Promise<APIResponse> {
         return await this.request.post(this.todoApiLocators.endpoints.todo, {
             data: todoData,
             headers: {
@@ -87,15 +81,7 @@ export class TodoApiPage extends CommonPage {
      * @returns APIResponse
      */
     @step((todoData) => `Update entire todo with ID: ${todoData.id}`)
-    async updateTodo(todoData: {
-        id: number;
-        title: string;
-        description?: string;
-        status?: 'pending' | 'in_progress' | 'completed';
-        priority?: 'low' | 'medium' | 'high';
-        due_date?: string;
-        user_id?: number;
-    }): Promise<APIResponse> {
+    async updateTodo(todoData: TodoUpdate): Promise<APIResponse> {
         return await this.request.put(this.todoApiLocators.endpoints.todo, {
             data: todoData,
             headers: {
@@ -112,15 +98,7 @@ export class TodoApiPage extends CommonPage {
      * @returns APIResponse
      */
     @step((todoData) => `Partially update todo with ID: ${todoData.id}`)
-    async patchTodo(todoData: {
-        id: number;
-        title?: string;
-        description?: string;
-        status?: 'pending' | 'in_progress' | 'completed';
-        priority?: 'low' | 'medium' | 'high';
-        due_date?: string;
-        user_id?: number;
-    }): Promise<APIResponse> {
+    async patchTodo(todoData: TodoPatch): Promise<APIResponse> {
         return await this.request.patch(this.todoApiLocators.endpoints.todo, {
             data: todoData,
             headers: {

@@ -1,4 +1,5 @@
 import { test } from '../base-test';
+import { STATUS_CODES, TEST_IDS } from '../../constants/test-constants';
 
 test.describe('Todo API - GET Methods', () => {
     test.beforeEach(async ({ todoApiPage }) => {
@@ -14,7 +15,7 @@ test.describe('Todo API - GET Methods', () => {
         const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, 200);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
 
         // Verify response
         await todoApiPage.verifySuccessField(responseBody, true);
@@ -36,7 +37,7 @@ test.describe('Todo API - GET Methods', () => {
         const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, 200);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
 
         // Verify response
         await todoApiPage.verifySuccessField(responseBody, true);
@@ -49,11 +50,11 @@ test.describe('Todo API - GET Methods', () => {
 
     test('TC006 - GET single todo by invalid ID returns 404', async ({ todoApiPage }) => {
         // Try to get a non-existent todo
-        const response = await todoApiPage.getTodoById(999999);
+        const response = await todoApiPage.getTodoById(TEST_IDS.NON_EXISTENT_ID);
         const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, 404);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.NOT_FOUND);
 
         // Verify error response
         await todoApiPage.verifySuccessField(responseBody, false);

@@ -1,5 +1,6 @@
 import { test, BaseTest } from '../base-test';
-import { CreateTodoRequest, CreateTodoResponse } from '../../types/todo.types';
+import { STATUS_CODES } from '../../constants/test-constants';
+import { TodoInput } from '../../interfaces/todo.interface';
 
 test.describe('Todo API - POST Methods', () => {
     const baseTest = new BaseTest();
@@ -19,14 +20,14 @@ test.describe('Todo API - POST Methods', () => {
 
     test('TC007 - POST create todo with all required fields', async ({ todoApiPage }) => {
         // Get test data
-        const todoData: CreateTodoRequest = testData.validTodoData.minimalTodo;
+        const todoData: TodoInput = testData.validTodoData.minimalTodo;
 
         // Create a new todo with only required fields
         const response = await todoApiPage.createTodo(todoData);
-        const responseBody: CreateTodoResponse = await todoApiPage.getResponseBody(response);
+        const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, testData.expectedResponses.statusCodes.created);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
         // Verify response
         await todoApiPage.verifySuccessField(responseBody, true);
@@ -39,14 +40,14 @@ test.describe('Todo API - POST Methods', () => {
 
     test('TC008 - POST create todo with all fields', async ({ todoApiPage }) => {
         // Get test data
-        const todoData: CreateTodoRequest = testData.validTodoData.completeTodo;
+        const todoData: TodoInput = testData.validTodoData.completeTodo;
 
         // Create a new todo with all fields
         const response = await todoApiPage.createTodo(todoData);
-        const responseBody: CreateTodoResponse = await todoApiPage.getResponseBody(response);
+        const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, testData.expectedResponses.statusCodes.created);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
         // Verify all fields
         await todoApiPage.verifySuccessField(responseBody, true);
@@ -59,14 +60,14 @@ test.describe('Todo API - POST Methods', () => {
 
     test('TC009 - POST create todo with default values', async ({ todoApiPage }) => {
         // Get test data
-        const todoData: CreateTodoRequest = testData.validTodoData.todoWithDefaults;
+        const todoData: TodoInput = testData.validTodoData.todoWithDefaults;
 
         // Create todo with only title (should use defaults)
         const response = await todoApiPage.createTodo(todoData);
-        const responseBody: CreateTodoResponse = await todoApiPage.getResponseBody(response);
+        const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, testData.expectedResponses.statusCodes.created);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
         // Verify default values
         await todoApiPage.verifyTodoStatus(responseBody, testData.expectedResponses.defaultValues.status);
@@ -75,13 +76,13 @@ test.describe('Todo API - POST Methods', () => {
     });
 
     test('TC010 - POST create todo without title returns 400', async ({ todoApiPage }) => {
-        const todoData: CreateTodoRequest = testData.invalidTodoData.todoWithoutTitle;
+        const todoData: TodoInput = testData.invalidTodoData.todoWithoutTitle;
 
         const response = await todoApiPage.createTodo(todoData);
         const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify error response
-        await todoApiPage.verifyStatusCode(response, testData.expectedResponses.statusCodes.badRequest);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.BAD_REQUEST);
         await todoApiPage.verifySuccessField(responseBody, false);
     });
 
@@ -95,7 +96,7 @@ test.describe('Todo API - POST Methods', () => {
         const responseBody = await todoApiPage.getResponseBody(response);
 
         // Verify status code
-        await todoApiPage.verifyStatusCode(response, testData.expectedResponses.statusCodes.success);
+        await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
 
         // Verify response
         await todoApiPage.verifySuccessField(responseBody, true);
