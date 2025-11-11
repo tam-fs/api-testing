@@ -227,6 +227,7 @@ export class SchemaValidator {
     static validateErrorResponse(response: any): { valid: boolean; errors: string[] } {
         const errors: string[] = [];
 
+        
         // Check required fields
         if (!response.hasOwnProperty('success')) {
             errors.push('Missing required field: success');
