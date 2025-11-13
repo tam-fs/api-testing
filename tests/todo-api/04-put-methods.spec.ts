@@ -61,9 +61,13 @@ test.describe('Todo API - PUT Methods', () => {
         console.log('\n🔍 Verifying status code is 200 (OK)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
 
+        // Verify response schema (replaces manual structure checks)
+        console.log('\n🔍 Verifying response schema...');
+        await todoApiPage.verifyCreateOrUpdateTodoSchema(responseBody);
+        console.log('  ✅ Schema validation passed');
+
+        // Verify specific field values
         console.log('\n🔍 Verifying all updated fields in response...');
-        console.log('  - Checking success field is true');
-        await todoApiPage.verifySuccessField(responseBody, true);
         console.log('  - Verifying todo ID:', todoId);
         await todoApiPage.verifyTodoId(responseBody, todoId);
         console.log('  - Verifying updated title:', updatedTodoData.title);
@@ -83,11 +87,11 @@ test.describe('Todo API - PUT Methods', () => {
         console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
         console.log('  - Verifying GET status code is 200');
         await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
-        console.log('  - Verifying title persisted');
+        console.log('  - Verifying GET response schema');
+        await todoApiPage.verifyGetTodoSchema(getTodo);
+        console.log('  - Verifying field values persisted correctly');
         await todoApiPage.verifyTodoTitle(getTodo, updatedTodoData.title);
-        console.log('  - Verifying description persisted');
         await todoApiPage.verifyTodoDescription(getTodo, updatedTodoData.description);
-        console.log('  - Verifying status persisted');
         await todoApiPage.verifyTodoStatus(getTodo, updatedTodoData.status);
 
         console.log('\n✅ TC012 PASSED - Todo updated successfully with all fields and persisted correctly');
@@ -125,6 +129,12 @@ test.describe('Todo API - PUT Methods', () => {
 
         console.log('\n🔍 Verifying status code is 200 (OK)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+
+        // Verify response schema
+        console.log('\n🔍 Verifying response schema...');
+        await todoApiPage.verifyCreateOrUpdateTodoSchema(responseBody);
+        console.log('  ✅ Schema validation passed');
+
         console.log('\n🔍 Verifying status changed to IN_PROGRESS...');
         await todoApiPage.verifyTodoStatus(responseBody, statusUpdate.status);
         console.log('  ✅ Status updated successfully');
@@ -137,6 +147,8 @@ test.describe('Todo API - PUT Methods', () => {
         console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
         console.log('  - Verifying GET status code is 200');
         await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        console.log('  - Verifying GET response schema');
+        await todoApiPage.verifyGetTodoSchema(getTodo);
         console.log('  - Verifying status persisted as IN_PROGRESS');
         await todoApiPage.verifyTodoStatus(getTodo, statusUpdate.status);
 
@@ -165,9 +177,11 @@ test.describe('Todo API - PUT Methods', () => {
 
         console.log('\n🔍 Verifying status code is 404 (NOT FOUND)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.NOT_FOUND);
-        console.log('\n🔍 Verifying error response...');
-        console.log('  - Checking success field is false');
-        await todoApiPage.verifySuccessField(responseBody, false);
+
+        // Verify error response schema
+        console.log('\n🔍 Verifying error response schema...');
+        await todoApiPage.verifyErrorResponseSchema(responseBody);
+        console.log('  ✅ Error schema validation passed (includes success: false, message)');
         console.log('  - Error message:', responseBody.error || responseBody.message || 'No error message');
 
         console.log('\n✅ TC014 PASSED - Non-existent todo update properly returns 404 error');
@@ -199,9 +213,11 @@ test.describe('Todo API - PUT Methods', () => {
 
         console.log('\n🔍 Verifying status code is 400 (BAD REQUEST)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.BAD_REQUEST);
-        console.log('\n🔍 Verifying error response...');
-        console.log('  - Checking success field is false');
-        await todoApiPage.verifySuccessField(responseBody, false);
+
+        // Verify error response schema
+        console.log('\n🔍 Verifying error response schema...');
+        await todoApiPage.verifyErrorResponseSchema(responseBody);
+        console.log('  ✅ Error schema validation passed (includes success: false, message)');
         console.log('  - Error message:', responseBody.error || responseBody.message || 'No error message');
 
         console.log('\n✅ TC015 PASSED - Invalid update request properly rejected with 400 error');

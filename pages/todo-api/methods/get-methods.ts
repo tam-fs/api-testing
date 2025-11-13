@@ -18,8 +18,6 @@ export class GetMethods extends BaseApi {
     @step('Get all todos')
     async getAllTodos(): Promise<APIResponse> {
         const response = await this.request.get(this.endpoints.todos);
-
-        // Auto validate schema if enabled and response is successful
         if (this.autoValidateSchema && response.ok()) {
             const body = await this.getCachedResponseBody(response);
             await this.schemaValidations.verifyGetAllTodosSchema(body);

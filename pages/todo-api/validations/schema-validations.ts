@@ -126,28 +126,6 @@ export class SchemaValidations {
     }
 
     /**
-     * Verify field value equals expected value
-     * @param actualValue - Actual value
-     * @param expectedValue - Expected value
-     * @param fieldName - Field name for logging
-     */
-    @step((actualValue, expectedValue, fieldName) => `Verify ${fieldName} equals ${expectedValue}`)
-    async verifyFieldEquals(actualValue: any, expectedValue: any, fieldName?: string): Promise<void> {
-        expect(actualValue).toBe(expectedValue);
-    }
-
-    /**
-     * Verify field value not equals expected value
-     * @param actualValue - Actual value
-     * @param expectedValue - Expected value
-     * @param fieldName - Field name for logging
-     */
-    @step((actualValue, expectedValue, fieldName) => `Verify ${fieldName} not equals ${expectedValue}`)
-    async verifyFieldNotEquals(actualValue: any, expectedValue: any, fieldName?: string): Promise<void> {
-        expect(actualValue).not.toBe(expectedValue);
-    }
-
-    /**
      * Verify todo ID in response
      * @param responseBody - Response body
      * @param expectedId - Expected ID
@@ -218,26 +196,6 @@ export class SchemaValidations {
     }
 
     /**
-     * Verify array contains value
-     * @param array - Array to check
-     * @param value - Value to find
-     */
-    @step((array, value) => `Verify array contains ${value}`)
-    async verifyArrayContains(array: any[], value: any): Promise<void> {
-        expect(array).toContain(value);
-    }
-
-    /**
-     * Verify data type of field
-     * @param value - Value to check
-     * @param expectedType - Expected type ('string', 'number', 'boolean', 'object')
-     */
-    @step((value, expectedType) => `Verify field type is ${expectedType}`)
-    async verifyFieldType(value: any, expectedType: string): Promise<void> {
-        expect(typeof value).toBe(expectedType);
-    }
-
-    /**
      * Verify todos are ordered by date (newest first)
      * @param todos - Array of todos
      */
@@ -251,39 +209,6 @@ export class SchemaValidations {
     }
 
     /**
-     * Verify todo has all required fields
-     * @param todo - Todo object
-     */
-    @step('Verify todo has all required fields')
-    async verifyTodoHasRequiredFields(todo: any): Promise<void> {
-        expect(todo).toHaveProperty('id');
-        expect(todo).toHaveProperty('title');
-        expect(todo).toHaveProperty('description');
-        expect(todo).toHaveProperty('status');
-        expect(todo).toHaveProperty('priority');
-        expect(todo).toHaveProperty('created_at');
-        expect(todo).toHaveProperty('updated_at');
-    }
-
-    /**
-     * Verify todo status is valid enum value
-     * @param status - Status to verify
-     */
-    @step((status) => `Verify status "${status}" is valid`)
-    async verifyValidStatus(status: string): Promise<void> {
-        expect(['pending', 'in_progress', 'completed']).toContain(status);
-    }
-
-    /**
-     * Verify todo priority is valid enum value
-     * @param priority - Priority to verify
-     */
-    @step((priority) => `Verify priority "${priority}" is valid`)
-    async verifyValidPriority(priority: string): Promise<void> {
-        expect(['low', 'medium', 'high']).toContain(priority);
-    }
-
-    /**
      * Verify array length equals expected value
      * @param array - Array to check
      * @param expectedLength - Expected length
@@ -291,26 +216,6 @@ export class SchemaValidations {
     @step((array, expectedLength) => `Verify array length is ${expectedLength}`)
     async verifyArrayLength(array: any[], expectedLength: number): Promise<void> {
         expect(array.length).toBe(expectedLength);
-    }
-
-    /**
-     * Verify response has property with message
-     * @param responseBody - Response body
-     */
-    @step('Verify response has message property')
-    async verifyHasMessage(responseBody: any): Promise<void> {
-        expect(responseBody).toHaveProperty('message');
-    }
-
-    /**
-     * Verify deleted message exists and is valid
-     * @param responseBody - Response body
-     */
-    @step('Verify deleted message is valid')
-    async verifyDeletedMessage(responseBody: any): Promise<void> {
-        expect(responseBody.deleted.message).toBeDefined();
-        expect(typeof responseBody.deleted.message).toBe('string');
-        expect(responseBody.deleted.message.length).toBeGreaterThan(0);
     }
 
     /**
@@ -325,37 +230,4 @@ export class SchemaValidations {
         expect(responseBody.reset.sample_data.todos).toBeGreaterThan(0);
     }
 
-    /**
-     * Verify todo exists in array by ID
-     * @param todos - Array of todos
-     * @param todoId - ID to find
-     */
-    @step((todos, todoId) => `Verify todo with ID ${todoId} exists in array`)
-    async verifyTodoExistsInArray(todos: any[], todoId: number): Promise<void> {
-        const foundTodo = todos.find((todo: any) => todo.id === todoId);
-        expect(foundTodo).toBeDefined();
-    }
-
-    /**
-     * Verify found todo details
-     * @param foundTodo - Found todo object
-     * @param expectedTitle - Expected title
-     * @param expectedStatus - Expected status
-     * @param expectedPriority - Expected priority
-     */
-    @step('Verify found todo details')
-    async verifyFoundTodoDetails(
-        foundTodo: any,
-        expectedTitle: string,
-        expectedStatus?: string,
-        expectedPriority?: string
-    ): Promise<void> {
-        expect(foundTodo.title).toBe(expectedTitle);
-        if (expectedStatus) {
-            expect(foundTodo.status).toBe(expectedStatus);
-        }
-        if (expectedPriority) {
-            expect(foundTodo.priority).toBe(expectedPriority);
-        }
-    }
 }

@@ -5,6 +5,7 @@ import { CreateTodoRequest } from '../../interfaces/todo.schema';
 test.describe('Todo API - POST Methods', () => {
     const baseTest = new BaseTest();
     let testData: any;
+    let commonData: any;
 
     test.beforeAll(async () => {
         // Load test data from JSON file
@@ -37,20 +38,15 @@ test.describe('Todo API - POST Methods', () => {
         console.log('\n🔍 Verifying status code is 201 (CREATED)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
-        // Verify response
-        console.log('\n🔍 Verifying response structure and fields...');
-        console.log('  - Checking success field is true');
-        await todoApiPage.verifySuccessField(responseBody, true);
-        console.log('  - Checking response has "todo" property');
-        await todoApiPage.verifyHasProperty(responseBody, 'todo');
-        console.log('  - Checking todo has "id" property');
-        await todoApiPage.verifyHasProperty(responseBody.todo, 'id');
+        // Verify response schema (replaces manual field checks)
+        console.log('\n🔍 Verifying response schema...');
+        await todoApiPage.verifyCreateOrUpdateTodoSchema(responseBody);
+        console.log('  ✅ Schema validation passed (includes success, todo, id, created_at, updated_at)');
+
+        // Verify specific field values
+        console.log('\n🔍 Verifying specific field values...');
         console.log('  - Verifying title matches:', todoData.title);
         await todoApiPage.verifyTodoTitle(responseBody, todoData.title);
-        console.log('  - Checking todo has "created_at" timestamp');
-        await todoApiPage.verifyHasProperty(responseBody.todo, 'created_at');
-        console.log('  - Checking todo has "updated_at" timestamp');
-        await todoApiPage.verifyHasProperty(responseBody.todo, 'updated_at');
 
         // Confirm state by GET - verify todo was actually created
         console.log('\n🔄 Confirming todo creation by GET request...');
@@ -60,6 +56,8 @@ test.describe('Todo API - POST Methods', () => {
         console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
         console.log('  - Verifying GET status code is 200');
         await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        console.log('  - Verifying GET response schema');
+        await todoApiPage.verifyGetTodoSchema(getTodo);
         console.log('  - Verifying title persisted correctly');
         await todoApiPage.verifyTodoTitle(getTodo, todoData.title);
 
@@ -84,10 +82,13 @@ test.describe('Todo API - POST Methods', () => {
             console.log('\n🔍 Verifying status code is 201 (CREATED)...');
             await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
-            // Verify all fields
-            console.log('\n🔍 Verifying all fields in response...');
-            console.log('  - Checking success field is true');
-            await todoApiPage.verifySuccessField(responseBody, true);
+            // Verify response schema (replaces manual structure checks)
+            console.log('\n🔍 Verifying response schema...');
+            await todoApiPage.verifyCreateOrUpdateTodoSchema(responseBody);
+            console.log('  ✅ Schema validation passed');
+
+            // Verify specific field values
+            console.log('\n🔍 Verifying specific field values...');
             console.log('  - Verifying title:', todoData.title);
             await todoApiPage.verifyTodoTitle(responseBody, todoData.title);
             console.log('  - Verifying description:', todoData.description);
@@ -107,11 +108,11 @@ test.describe('Todo API - POST Methods', () => {
             console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
             console.log('  - Verifying GET status code is 200');
             await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
-            console.log('  - Verifying description persisted');
+            console.log('  - Verifying GET response schema');
+            await todoApiPage.verifyGetTodoSchema(getTodo);
+            console.log('  - Verifying field values persisted correctly');
             await todoApiPage.verifyTodoDescription(getTodo, todoData.description!);
-            console.log('  - Verifying status persisted');
             await todoApiPage.verifyTodoStatus(getTodo, todoData.status!);
-            console.log('  - Verifying priority persisted');
             await todoApiPage.verifyTodoPriority(getTodo, todoData.priority!);
 
             console.log('\n✅ TC008 PASSED - Todo created with all fields and persisted correctly');
@@ -136,7 +137,12 @@ test.describe('Todo API - POST Methods', () => {
             console.log('\n🔍 Verifying status code is 201 (CREATED)...');
             await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
-            // Verify default values
+            // Verify response schema
+            console.log('\n🔍 Verifying response schema...');
+            await todoApiPage.verifyCreateOrUpdateTodoSchema(responseBody);
+            console.log('  ✅ Schema validation passed');   
+
+            // Verify default values were applied
             console.log('\n🔍 Verifying API applied default values correctly...');
             console.log('  - Expected default status:', testData.expectedResponses.defaultValues.status);
             console.log('  - Actual status:', responseBody.todo.status);
@@ -172,17 +178,10 @@ test.describe('Todo API - POST Methods', () => {
             console.log('\n🔍 Verifying status code is 200 (OK)...');
             await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
 
-            // Verify response
-            console.log('\n🔍 Verifying reset response structure...');
-            console.log('  - Checking success field is true');
-            await todoApiPage.verifySuccessField(responseBody, true);
-            console.log('  - Checking response has "reset" property');
-            await todoApiPage.verifyHasProperty(responseBody, 'reset');
-            console.log('  - Checking reset has "message" property');
-            await todoApiPage.verifyHasProperty(responseBody.reset, 'message');
-            console.log('  - Message:', responseBody.reset.message);
-            console.log('  - Checking reset has "sample_data" property');
-            await todoApiPage.verifyHasProperty(responseBody.reset, 'sample_data');
+            // Verify response schema (replaces manual structure checks)
+            console.log('\n🔍 Verifying reset response schema...');
+            await todoApiPage.verifyResetDatabaseSchema(responseBody);
+            console.log('  ✅ Schema validation passed (includes success, reset.message, reset.sample_data)');
 
             // Verify sample data counts
             console.log('\n🔍 Verifying sample data was created...');
@@ -210,8 +209,9 @@ test.describe('Todo API - POST Methods', () => {
         console.log('\n🔍 Verifying error response...');
         console.log('  - Expecting status code 400 (BAD REQUEST)');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.BAD_REQUEST);
-        console.log('  - Checking success field is false');
-        await todoApiPage.verifySuccessField(responseBody, false);
+        console.log('  - Verifying error response schema');
+        await todoApiPage.verifyErrorResponseSchema(responseBody);
+        console.log('  ✅ Error schema validation passed (includes success: false, message)');
         console.log('  - Error message:', responseBody.error || responseBody.message || 'No error message');
 
         console.log('\n✅ TC010 PASSED - Invalid request properly rejected with 400 error');

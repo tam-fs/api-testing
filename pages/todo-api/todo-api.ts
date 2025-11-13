@@ -144,13 +144,13 @@ export class TodoApiPage {
         return await this.validations.verifyArrayLengthGreaterThan(array, value);
     }
 
-    async verifyFieldEquals(actualValue: any, expectedValue: any, fieldName?: string): Promise<void> {
-        return await this.validations.verifyFieldEquals(actualValue, expectedValue, fieldName);
-    }
+    // async verifyFieldEquals(actualValue: any, expectedValue: any, fieldName?: string): Promise<void> {
+    //     return await this.validations.verifyFieldEquals(actualValue, expectedValue, fieldName);
+    // }
 
-    async verifyFieldNotEquals(actualValue: any, expectedValue: any, fieldName?: string): Promise<void> {
-        return await this.validations.verifyFieldNotEquals(actualValue, expectedValue, fieldName);
-    }
+    // async verifyFieldNotEquals(actualValue: any, expectedValue: any, fieldName?: string): Promise<void> {
+    //     return await this.validations.verifyFieldNotEquals(actualValue, expectedValue, fieldName);
+    // }
 
     async verifyTodoId(responseBody: any, expectedId: number): Promise<void> {
         return await this.validations.verifyTodoId(responseBody, expectedId);
@@ -180,56 +180,56 @@ export class TodoApiPage {
         return await this.validations.verifyDeletedTodoId(responseBody, expectedId);
     }
 
-    async verifyArrayContains(array: any[], value: any): Promise<void> {
-        return await this.validations.verifyArrayContains(array, value);
-    }
+    // async verifyArrayContains(array: any[], value: any): Promise<void> {
+    //     return await this.validations.verifyArrayContains(array, value);
+    // }
 
-    async verifyFieldType(value: any, expectedType: string): Promise<void> {
-        return await this.validations.verifyFieldType(value, expectedType);
-    }
+    // async verifyFieldType(value: any, expectedType: string): Promise<void> {
+    //     return await this.validations.verifyFieldType(value, expectedType);
+    // }
 
     async verifyTodosOrderedByDate(todos: any[]): Promise<void> {
         return await this.validations.verifyTodosOrderedByDate(todos);
     }
 
-    async verifyTodoHasRequiredFields(todo: any): Promise<void> {
-        return await this.validations.verifyTodoHasRequiredFields(todo);
-    }
+    // async verifyTodoHasRequiredFields(todo: any): Promise<void> {
+    //     return await this.validations.verifyTodoHasRequiredFields(todo);
+    // }
 
-    async verifyValidStatus(status: string): Promise<void> {
-        return await this.validations.verifyValidStatus(status);
-    }
+    // async verifyValidStatus(status: string): Promise<void> {
+    //     return await this.validations.verifyValidStatus(status);
+    // }
 
-    async verifyValidPriority(priority: string): Promise<void> {
-        return await this.validations.verifyValidPriority(priority);
-    }
+    // async verifyValidPriority(priority: string): Promise<void> {
+    //     return await this.validations.verifyValidPriority(priority);
+    // }
 
     async verifyArrayLength(array: any[], expectedLength: number): Promise<void> {
         return await this.validations.verifyArrayLength(array, expectedLength);
     }
 
-    async verifyHasMessage(responseBody: any): Promise<void> {
-        return await this.validations.verifyHasMessage(responseBody);
-    }
+    // async verifyHasMessage(responseBody: any): Promise<void> {
+    //     return await this.validations.verifyHasMessage(responseBody);
+    // }
 
-    async verifyDeletedMessage(responseBody: any): Promise<void> {
-        return await this.validations.verifyDeletedMessage(responseBody);
-    }
+    // async verifyDeletedMessage(responseBody: any): Promise<void> {
+    //     return await this.validations.verifyDeletedMessage(responseBody);
+    // }
 
     async verifyResetSampleData(responseBody: any): Promise<void> {
         return await this.validations.verifyResetSampleData(responseBody);
     }
 
-    async verifyTodoExistsInArray(todos: any[], todoId: number): Promise<void> {
-        return await this.validations.verifyTodoExistsInArray(todos, todoId);
-    }
+    // async verifyTodoExistsInArray(todos: any[], todoId: number): Promise<void> {
+    //     return await this.validations.verifyTodoExistsInArray(todos, todoId);
+    // }
 
-    async verifyFoundTodoDetails(
-        foundTodo: any,
-        expectedTitle: string,
-        expectedStatus?: string,
-        expectedPriority?: string
-    ): Promise<void> {
-        return await this.validations.verifyFoundTodoDetails(foundTodo, expectedTitle, expectedStatus, expectedPriority);
-    }
+    // async verifyFoundTodoDetails(
+    //     foundTodo: any,
+    //     expectedTitle: string,
+    //     expectedStatus?: string,
+    //     expectedPriority?: string
+    // ): Promise<void> {
+    //     return await this.validations.verifyFoundTodoDetails(foundTodo, expectedTitle, expectedStatus, expectedPriority);
+    // }
 }

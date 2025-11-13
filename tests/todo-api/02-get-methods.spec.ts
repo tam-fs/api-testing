@@ -18,26 +18,23 @@ test.describe('Todo API - GET Methods', () => {
             const response = await todoApiPage.getAllTodos();
             const responseBody = await todoApiPage.getResponseBody(response);
             console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
-            console.log('📊 Status Code:', response.status());
             console.log('📊 Number of todos:', responseBody.todos?.length || 0);
 
             // Verify status code
-            console.log('\n🔍 Verifying status code is 200 (OK)...');
             await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+            console.log('📊 Status Code:', response.status());
 
-            // Verify response
-            console.log('\n🔍 Verifying response structure...');
-            console.log('  - Checking success field is true');
-            await todoApiPage.verifySuccessField(responseBody, true);
-            console.log('  - Checking "todos" is an array');
-            await todoApiPage.verifyIsArray(responseBody.todos);
-            console.log('  - Verifying todos array has items');
+            // Verify response schema (replaces manual structure checks)
+            await todoApiPage.verifyGetAllTodosSchema(responseBody);
+            console.log('✅ Schema validation passed (includes success, todos array structure)');
+
+            // Verify todos array has items
+            console.log('\n🔍 Verifying todos array has items...');
             await todoApiPage.verifyArrayLengthGreaterThan(responseBody.todos, 0);
 
             // Verify todos are ordered by creation date (newest first)
-            console.log('\n🔍 Verifying todos are ordered by creation date (newest first)...');
             await todoApiPage.verifyTodosOrderedByDate(responseBody.todos);
-            console.log('  ✅ Todos are correctly ordered');
+            console.log('✅ Todos are correctly ordered');
 
             console.log('\n✅ TC004 PASSED - Successfully retrieved all todos with correct structure and ordering');
         });
@@ -58,26 +55,18 @@ test.describe('Todo API - GET Methods', () => {
             const response = await todoApiPage.getTodoById(validId);
             const responseBody = await todoApiPage.getResponseBody(response);
             console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
-            console.log('📊 Status Code:', response.status());
+            
 
             // Verify status code
-            console.log('\n🔍 Verifying status code is 200 (OK)...');
             await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+            console.log('📊 Status Code:', response.status());
 
-            // Verify response
-            console.log('\n🔍 Verifying response structure and fields...');
-            console.log('  - Checking success field is true');
-            await todoApiPage.verifySuccessField(responseBody, true);
-            console.log('  - Checking response has "todo" property');
-            await todoApiPage.verifyHasProperty(responseBody, 'todo');
-            console.log('  - Verifying todo ID matches requested ID');
+            // Verify response schema (replaces manual structure checks)
+            await todoApiPage.verifyGetTodoSchema(responseBody);
+            console.log('✅ Schema validation passed (includes success, todo with all fields)');
+
+            // Verify specific field value
             await todoApiPage.verifyTodoId(responseBody, validId);
-            console.log('  - Checking todo has "title" property');
-            await todoApiPage.verifyHasProperty(responseBody.todo, 'title');
-            console.log('  - Checking todo has "status" property');
-            await todoApiPage.verifyHasProperty(responseBody.todo, 'status');
-            console.log('  - Checking todo has "priority" property');
-            await todoApiPage.verifyHasProperty(responseBody.todo, 'priority');
 
             console.log('\n✅ TC005 PASSED - Successfully retrieved single todo with all required fields');
         });
@@ -92,19 +81,16 @@ test.describe('Todo API - GET Methods', () => {
             const response = await todoApiPage.getTodoById(TEST_IDS.NON_EXISTENT_ID);
             const responseBody = await todoApiPage.getResponseBody(response);
             console.log('✅ Error response received:', JSON.stringify(responseBody, null, 2));
-            console.log('📊 Status Code:', response.status());
+            
 
             // Verify status code
-            console.log('\n🔍 Verifying status code is 404 (NOT FOUND)...');
             await todoApiPage.verifyStatusCode(response, STATUS_CODES.NOT_FOUND);
+            console.log('📊 Status Code:', response.status());
 
-            // Verify error response
-            console.log('\n🔍 Verifying error response structure...');
-            console.log('  - Checking success field is false');
-            await todoApiPage.verifySuccessField(responseBody, false);
-            console.log('  - Checking response has "message" property');
-            await todoApiPage.verifyHasProperty(responseBody, 'message');
-            console.log('  - Error message:', responseBody.message || 'No message');
+            // Verify error response schema (replaces manual checks)
+            await todoApiPage.verifyErrorResponseSchema(responseBody);
+            console.log('✅ Error schema validation passed (includes success: false, message)');
+            console.log('- Error message:', responseBody.message || 'No message');
 
             console.log('\n✅ TC006 PASSED - Invalid ID properly returns 404 error');
         });

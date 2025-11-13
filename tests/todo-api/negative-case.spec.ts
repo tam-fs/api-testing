@@ -31,7 +31,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log(`   Request: GET /todos/${nonExistentId}`);
         console.log('   Response:', JSON.stringify(getErrorBody, null, 2));
         await todoApiPage.verifyStatusCode(getError, STATUS_CODES.NOT_FOUND);
-        await todoApiPage.verifySuccessField(getErrorBody, false);
+        // Verify error response schema
+        await todoApiPage.verifyErrorResponseSchema(getErrorBody);
         console.log(`   ✅ Status: ${getError.status()} | GET properly returns 404 for invalid ID`);
 
         // Test POST with missing required field
@@ -43,7 +44,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         const postErrorBody = await todoApiPage.getResponseBody(postError);
         console.log('   Response:', JSON.stringify(postErrorBody, null, 2));
         await todoApiPage.verifyStatusCode(postError, STATUS_CODES.BAD_REQUEST);
-        await todoApiPage.verifySuccessField(postErrorBody, false);
+        // Verify error response schema
+        await todoApiPage.verifyErrorResponseSchema(postErrorBody);
         console.log(`   ✅ Status: ${postError.status()} | POST properly validates required fields`);
 
         // Test PUT with invalid ID
@@ -60,7 +62,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         const putErrorBody = await todoApiPage.getResponseBody(putError);
         console.log('   Response:', JSON.stringify(putErrorBody, null, 2));
         await todoApiPage.verifyStatusCode(putError, STATUS_CODES.NOT_FOUND);
-        await todoApiPage.verifySuccessField(putErrorBody, false);
+        // Verify error response schema
+        await todoApiPage.verifyErrorResponseSchema(putErrorBody);
         console.log(`   ✅ Status: ${putError.status()} | PUT properly returns 404 for invalid ID`);
 
         // Test PATCH with invalid ID
@@ -75,7 +78,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         const patchErrorBody = await todoApiPage.getResponseBody(patchError);
         console.log('   Response:', JSON.stringify(patchErrorBody, null, 2));
         await todoApiPage.verifyStatusCode(patchError, STATUS_CODES.NOT_FOUND);
-        await todoApiPage.verifySuccessField(patchErrorBody, false);
+        // Verify error response schema
+        await todoApiPage.verifyErrorResponseSchema(patchErrorBody);
         console.log(`   ✅ Status: ${patchError.status()} | PATCH properly returns 404 for invalid ID`);
 
         // Test DELETE with invalid ID
@@ -85,7 +89,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         const deleteErrorBody = await todoApiPage.getResponseBody(deleteError);
         console.log('   Response:', JSON.stringify(deleteErrorBody, null, 2));
         await todoApiPage.verifyStatusCode(deleteError, STATUS_CODES.NOT_FOUND);
-        await todoApiPage.verifySuccessField(deleteErrorBody, false);
+        // Verify error response schema
+        await todoApiPage.verifyErrorResponseSchema(deleteErrorBody);
         console.log(`   ✅ Status: ${deleteError.status()} | DELETE properly returns 404 for invalid ID`);
 
         // Test double DELETE
@@ -98,6 +103,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log(`   First DELETE: /todos/${todoId}`);
         const firstDelete = await todoApiPage.deleteTodo(todoId);
         await todoApiPage.verifyStatusCode(firstDelete, STATUS_CODES.OK);
+        // Verify response schema
+        await todoApiPage.verifyDeleteTodoSchema(await todoApiPage.getResponseBody(firstDelete));
         console.log(`   ✅ First delete: ${firstDelete.status()}`);
 
         console.log(`   Second DELETE: /todos/${todoId}`);
@@ -105,7 +112,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         const secondDeleteBody = await todoApiPage.getResponseBody(secondDelete);
         console.log('   Response:', JSON.stringify(secondDeleteBody, null, 2));
         await todoApiPage.verifyStatusCode(secondDelete, STATUS_CODES.NOT_FOUND);
-        await todoApiPage.verifySuccessField(secondDeleteBody, false);
+        // Verify error response schema
+        await todoApiPage.verifyErrorResponseSchema(secondDeleteBody);
         console.log(`   ✅ Second delete: ${secondDelete.status()} | Cannot delete already deleted todo`);
 
         console.log('\n========================================');

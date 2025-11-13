@@ -34,8 +34,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(getAllBody1, null, 2));
 
         await todoApiPage.verifyStatusCode(getAllResponse1, STATUS_CODES.OK);
-        await todoApiPage.verifySuccessField(getAllBody1, true);
-        await todoApiPage.verifyIsArray(getAllBody1.todos);
+        // Verify response schema
+        await todoApiPage.verifyGetAllTodosSchema(getAllBody1);
         const initialCount = getAllBody1.todos.length;
         console.log(`   ✅ Status: ${getAllResponse1.status()} | Initial todos count: ${initialCount}`);
 
@@ -58,8 +58,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(postBody, null, 2));
 
         await todoApiPage.verifyStatusCode(postResponse, STATUS_CODES.CREATED);
-        await todoApiPage.verifySuccessField(postBody, true);
-        await todoApiPage.verifyHasProperty(postBody.todo, 'id');
+        // Verify response schema
+        await todoApiPage.verifyCreateOrUpdateTodoSchema(postBody);
         await todoApiPage.verifyTodoTitle(postBody, newTodo.title);
         await todoApiPage.verifyTodoDescription(postBody, newTodo.description!);
         await todoApiPage.verifyTodoStatus(postBody, newTodo.status!);
@@ -79,7 +79,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(getByIdBody1, null, 2));
 
         await todoApiPage.verifyStatusCode(getByIdResponse1, STATUS_CODES.OK);
-        await todoApiPage.verifySuccessField(getByIdBody1, true);
+        // Verify response schema
+        await todoApiPage.verifyGetTodoSchema(getByIdBody1);
         await todoApiPage.verifyTodoId(getByIdBody1, todoId);
         await todoApiPage.verifyTodoTitle(getByIdBody1, newTodo.title);
         await todoApiPage.verifyTodoDescription(getByIdBody1, newTodo.description!);
@@ -107,7 +108,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(putBody, null, 2));
 
         await todoApiPage.verifyStatusCode(putResponse, STATUS_CODES.OK);
-        await todoApiPage.verifySuccessField(putBody, true);
+        // Verify response schema
+        await todoApiPage.verifyCreateOrUpdateTodoSchema(putBody);
         await todoApiPage.verifyTodoId(putBody, todoId);
         await todoApiPage.verifyTodoTitle(putBody, updatedTodo.title);
         await todoApiPage.verifyTodoDescription(putBody, updatedTodo.description!);
@@ -127,6 +129,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(getByIdBody2, null, 2));
 
         await todoApiPage.verifyStatusCode(getByIdResponse2, STATUS_CODES.OK);
+        // Verify response schema
+        await todoApiPage.verifyGetTodoSchema(getByIdBody2);
         await todoApiPage.verifyTodoTitle(getByIdBody2, updatedTodo.title);
         await todoApiPage.verifyTodoDescription(getByIdBody2, updatedTodo.description!);
         await todoApiPage.verifyTodoStatus(getByIdBody2, updatedTodo.status!);
@@ -150,7 +154,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(patchBody, null, 2));
 
         await todoApiPage.verifyStatusCode(patchResponse, STATUS_CODES.OK);
-        await todoApiPage.verifySuccessField(patchBody, true);
+        // Verify response schema
+        await todoApiPage.verifyCreateOrUpdateTodoSchema(patchBody);
         await todoApiPage.verifyTodoStatus(patchBody, Status.COMPLETED);
         // Verify other fields unchanged
         await todoApiPage.verifyTodoTitle(patchBody, updatedTodo.title);
@@ -169,6 +174,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(getByIdBody3, null, 2));
 
         await todoApiPage.verifyStatusCode(getByIdResponse3, STATUS_CODES.OK);
+        // Verify response schema
+        await todoApiPage.verifyGetTodoSchema(getByIdBody3);
         await todoApiPage.verifyTodoStatus(getByIdBody3, Status.COMPLETED);
         await todoApiPage.verifyTodoTitle(getByIdBody3, updatedTodo.title);
         await todoApiPage.verifyTodoDescription(getByIdBody3, updatedTodo.description!);
@@ -185,8 +192,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(deleteBody, null, 2));
 
         await todoApiPage.verifyStatusCode(deleteResponse, STATUS_CODES.OK);
-        await todoApiPage.verifySuccessField(deleteBody, true);
-        await todoApiPage.verifyHasProperty(deleteBody, 'deleted');
+        // Verify response schema
+        await todoApiPage.verifyDeleteTodoSchema(deleteBody);
         await todoApiPage.verifyDeletedTodoId(deleteBody, todoId);
         console.log(`   ✅ Status: ${deleteResponse.status()} | Todo deleted successfully`);
 
@@ -201,7 +208,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log('   Response:', JSON.stringify(getByIdBody4, null, 2));
 
         await todoApiPage.verifyStatusCode(getByIdResponse4, STATUS_CODES.NOT_FOUND);
-        await todoApiPage.verifySuccessField(getByIdBody4, false);
+        // Verify error response schema
+        await todoApiPage.verifyErrorResponseSchema(getByIdBody4);
         console.log(`   ✅ Status: ${getByIdResponse4.status()} | Todo not found (deleted successfully)`);
 
         // ============================================================
@@ -214,6 +222,8 @@ test.describe('Todo API - End-to-End Flow', () => {
         console.log(`   Initial count: ${initialCount} | Final count: ${getAllBody2.todos.length}`);
 
         await todoApiPage.verifyStatusCode(getAllResponse2, STATUS_CODES.OK);
+        // Verify response schema
+        await todoApiPage.verifyGetAllTodosSchema(getAllBody2);
         await todoApiPage.verifyArrayLength(getAllBody2.todos, initialCount);
         console.log(`   ✅ Status: ${getAllResponse2.status()} | Todo lifecycle completed - back to initial state`);
 
