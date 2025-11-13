@@ -1,18 +1,20 @@
-import { Page, APIRequestContext, APIResponse, expect } from '@playwright/test';
-import { CommonPage } from '../common-page';
-import { TodoApiLocators } from '../../locators/todo-api/todo-api-locators';
+import { APIRequestContext, APIResponse, expect } from '@playwright/test';
 import { step } from '../../utils/logging';
 import { SchemaValidator } from '../../utils/schema-validator';
-import { TodoInput, TodoUpdate, TodoPatch } from '../../interfaces/todo.interface';
+import { CreateTodoRequest, UpdateTodoRequest, PatchTodoRequest } from '../../interfaces/todo.schema';
 
-export class TodoApiPage extends CommonPage {
-    private readonly todoApiLocators: TodoApiLocators;
-    private request: APIRequestContext;
+export class TodoApiPage {
+    private readonly request: APIRequestContext;
 
-    constructor(page: Page) {
-        super(page);
-        this.todoApiLocators = new TodoApiLocators(page);
-        this.request = page.request;
+    // API Endpoints - relative paths that will be appended to baseURL from playwright.config.ts
+    private readonly endpoints = {
+        todos: 'todos.php',
+        todo: 'todo.php',
+        reset: 'reset.php'
+    };
+
+    constructor(request: APIRequestContext) {
+        this.request = request;
     }
 
     // GET Methods
@@ -22,11 +24,7 @@ export class TodoApiPage extends CommonPage {
      */
     @step('Get all todos')
     async getAllTodos(): Promise<APIResponse> {
-        return await this.request.get(this.todoApiLocators.endpoints.todos, {
-            headers: {
-                'Accept': this.todoApiLocators.headers.accept
-            }
-        });
+        return await this.request.get(this.endpoints.todos);
     }
 
     /**
@@ -36,11 +34,8 @@ export class TodoApiPage extends CommonPage {
      */
     @step((id) => `Get todo by ID: ${id}`)
     async getTodoById(id: number): Promise<APIResponse> {
-        return await this.request.get(this.todoApiLocators.endpoints.todo, {
-            params: { id },
-            headers: {
-                'Accept': this.todoApiLocators.headers.accept
-            }
+        return await this.request.get(this.endpoints.todo, {
+            params: { id }
         });
     }
 
@@ -51,13 +46,9 @@ export class TodoApiPage extends CommonPage {
      * @returns APIResponse
      */
     @step('Create a new todo')
-    async createTodo(todoData: TodoInput): Promise<APIResponse> {
-        return await this.request.post(this.todoApiLocators.endpoints.todo, {
-            data: todoData,
-            headers: {
-                'Content-Type': this.todoApiLocators.headers.contentType,
-                'Accept': this.todoApiLocators.headers.accept
-            }
+    async createTodo(todoData: CreateTodoRequest): Promise<APIResponse> {
+        return await this.request.post(this.endpoints.todo, {
+            data: todoData
         });
     }
 
@@ -67,11 +58,7 @@ export class TodoApiPage extends CommonPage {
      */
     @step('Reset database with sample data')
     async resetDatabase(): Promise<APIResponse> {
-        return await this.request.post(this.todoApiLocators.endpoints.reset, {
-            headers: {
-                'Accept': this.todoApiLocators.headers.accept
-            }
-        });
+        return await this.request.post(this.endpoints.reset);
     }
 
     // PUT Methods
@@ -81,13 +68,9 @@ export class TodoApiPage extends CommonPage {
      * @returns APIResponse
      */
     @step((todoData) => `Update entire todo with ID: ${todoData.id}`)
-    async updateTodo(todoData: TodoUpdate): Promise<APIResponse> {
-        return await this.request.put(this.todoApiLocators.endpoints.todo, {
-            data: todoData,
-            headers: {
-                'Content-Type': this.todoApiLocators.headers.contentType,
-                'Accept': this.todoApiLocators.headers.accept
-            }
+    async updateTodo(todoData: UpdateTodoRequest): Promise<APIResponse> {
+        return await this.request.put(this.endpoints.todo, {
+            data: todoData
         });
     }
 
@@ -98,13 +81,9 @@ export class TodoApiPage extends CommonPage {
      * @returns APIResponse
      */
     @step((todoData) => `Partially update todo with ID: ${todoData.id}`)
-    async patchTodo(todoData: TodoPatch): Promise<APIResponse> {
-        return await this.request.patch(this.todoApiLocators.endpoints.todo, {
-            data: todoData,
-            headers: {
-                'Content-Type': this.todoApiLocators.headers.contentType,
-                'Accept': this.todoApiLocators.headers.accept
-            }
+    async patchTodo(todoData: PatchTodoRequest): Promise<APIResponse> {
+        return await this.request.patch(this.endpoints.todo, {
+            data: todoData
         });
     }
 
@@ -116,12 +95,8 @@ export class TodoApiPage extends CommonPage {
      */
     @step((id) => `Delete todo with ID: ${id}`)
     async deleteTodo(id: number): Promise<APIResponse> {
-        return await this.request.delete(this.todoApiLocators.endpoints.todo, {
-            data: { id },
-            headers: {
-                'Content-Type': this.todoApiLocators.headers.contentType,
-                'Accept': this.todoApiLocators.headers.accept
-            }
+        return await this.request.delete(this.endpoints.todo, {
+            data: { id }
         });
     }
 
@@ -164,6 +139,11 @@ export class TodoApiPage extends CommonPage {
      */
     @step((response, expectedStatusCode) => `Verify status code is ${expectedStatusCode}`)
     async verifyStatusCode(response: APIResponse, expectedStatusCode: number): Promise<void> {
+        // First check response.ok() for clarity - helps identify if status is in 2xx range
+        const isSuccessStatus = expectedStatusCode >= 200 && expectedStatusCode < 300;
+        expect(response.ok(), `Expected response.ok() to be ${isSuccessStatus} for status ${expectedStatusCode}`).toBe(isSuccessStatus);
+
+        // Then check exact status code
         expect(this.getStatusCode(response)).toBe(expectedStatusCode);
     }
 

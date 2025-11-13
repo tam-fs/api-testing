@@ -1,6 +1,6 @@
 import { test, BaseTest } from '../base-test';
 import { STATUS_CODES, TEST_IDS } from '../../constants/test-constants';
-import { TodoInput, TodoPatch, Status, Priority } from '../../interfaces/todo.interface';
+import { CreateTodoRequest, PatchTodoRequest, Status } from '../../interfaces/todo.schema';
 
 test.describe('Todo API - PATCH Methods', () => {
     const baseTest = new BaseTest();
@@ -16,21 +16,18 @@ test.describe('Todo API - PATCH Methods', () => {
         await todoApiPage.verifySuccessField(resetBody, true);
     });
 
-    test('TC016 - PATCH update only todo title', async ({ todoApiPage }) => {
-        const originalTodo: TodoInput = {
-            title: 'Original Title',
-            description: 'Original description',
-            status: Status.PENDING,
-            priority: Priority.LOW
-        };
+    test.describe('Happy Path', () => {
+        test('TC016 - PATCH update only todo title', async ({ todoApiPage }) => {
+        const originalTodo: CreateTodoRequest = testData.validTodoData.todoForPatch;
 
         const createResponse = await todoApiPage.createTodo(originalTodo);
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
 
-        const patchData: TodoPatch = {
+        const patchTitleData = testData.validTodoData.patchedTitle;
+        const patchData: PatchTodoRequest = {
             id: todoId,
-            title: 'Patched Title'
+            title: patchTitleData.title
         };
 
         const response = await todoApiPage.patchTodo(patchData);
@@ -38,25 +35,28 @@ test.describe('Todo API - PATCH Methods', () => {
 
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
         await todoApiPage.verifySuccessField(responseBody, true);
-        await todoApiPage.verifyTodoTitle(responseBody, 'Patched Title');
-        await todoApiPage.verifyTodoDescription(responseBody, 'Original description');
-        await todoApiPage.verifyTodoStatus(responseBody, 'pending');
-        await todoApiPage.verifyTodoPriority(responseBody, 'low');
+        await todoApiPage.verifyTodoTitle(responseBody, patchTitleData.title);
+        await todoApiPage.verifyTodoDescription(responseBody, originalTodo.description!);
+        await todoApiPage.verifyTodoStatus(responseBody, originalTodo.status!);
+        await todoApiPage.verifyTodoPriority(responseBody, originalTodo.priority!);
+
+        // Confirm state by GET - verify only title changed
+        const getResponse = await todoApiPage.getTodoById(todoId);
+        const getTodo = await todoApiPage.getResponseBody(getResponse);
+        await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        await todoApiPage.verifyTodoTitle(getTodo, patchTitleData.title);
+        await todoApiPage.verifyTodoDescription(getTodo, originalTodo.description!);
     });
 
     test('TC017 - PATCH update only todo status', async ({ todoApiPage }) => {
-        const originalTodo: TodoInput = {
-            title: 'Todo Status Patch',
-            description: 'Testing patch',
-            status: Status.PENDING,
-            priority: Priority.MEDIUM
-        };
+        const originalTodo: CreateTodoRequest = testData.validTodoData.todoStatusPatch;
 
         const createResponse = await todoApiPage.createTodo(originalTodo);
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
 
-        const patchData: TodoPatch = {
+        const statusUpdate = testData.validTodoData.statusUpdateToInProgress;
+        const patchData: PatchTodoRequest = {
             id: todoId,
             status: Status.IN_PROGRESS
         };
@@ -65,16 +65,26 @@ test.describe('Todo API - PATCH Methods', () => {
         const responseBody = await todoApiPage.getResponseBody(response);
 
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
-        await todoApiPage.verifyTodoStatus(responseBody, 'in_progress');
-        await todoApiPage.verifyTodoTitle(responseBody, 'Todo Status Patch');
-        await todoApiPage.verifyTodoDescription(responseBody, 'Testing patch');
-        await todoApiPage.verifyTodoPriority(responseBody, 'medium');
+        await todoApiPage.verifyTodoStatus(responseBody, statusUpdate.status);
+        await todoApiPage.verifyTodoTitle(responseBody, originalTodo.title);
+        await todoApiPage.verifyTodoDescription(responseBody, originalTodo.description!);
+        await todoApiPage.verifyTodoPriority(responseBody, originalTodo.priority!);
+
+        // Confirm state by GET - verify only status changed
+        const getResponse = await todoApiPage.getTodoById(todoId);
+        const getTodo = await todoApiPage.getResponseBody(getResponse);
+        await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        await todoApiPage.verifyTodoStatus(getTodo, statusUpdate.status);
+        await todoApiPage.verifyTodoTitle(getTodo, originalTodo.title);
+        });
     });
 
-    test('TC018 - PATCH non-existent todo returns 404', async ({ todoApiPage }) => {
-        const patchData: TodoPatch = {
+    test.describe('Error Cases', () => {
+        test('TC018 - PATCH non-existent todo returns 404', async ({ todoApiPage }) => {
+        const patchTitleData = testData.validTodoData.patchedTitle;
+        const patchData: PatchTodoRequest = {
             id: TEST_IDS.NON_EXISTENT_ID,
-            title: 'Non-existent Todo'
+            title: patchTitleData.title
         };
 
         const response = await todoApiPage.patchTodo(patchData);
@@ -85,13 +95,14 @@ test.describe('Todo API - PATCH Methods', () => {
     });
 
     test('TC019 - PATCH with no fields to update (only ID) returns 400', async ({ todoApiPage }) => {
+        const todoToCreate = testData.validTodoData.todoToUpdate;
         const createResponse = await todoApiPage.createTodo({
-            title: 'Todo No Update'
+            title: todoToCreate.title
         });
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
 
-        const patchData: TodoPatch = {
+        const patchData: PatchTodoRequest = {
             id: todoId
         };
 
@@ -100,5 +111,6 @@ test.describe('Todo API - PATCH Methods', () => {
 
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.BAD_REQUEST);
         await todoApiPage.verifySuccessField(responseBody, false);
+        });
     });
 });

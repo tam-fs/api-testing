@@ -1,6 +1,6 @@
 import { test, BaseTest } from '../base-test';
 import { STATUS_CODES, TEST_IDS } from '../../constants/test-constants';
-import { TodoInput } from '../../interfaces/todo.interface';
+import { CreateTodoRequest } from '../../interfaces/todo.schema';
 
 test.describe('Todo API - Schema Validation', () => {
     const baseTest = new BaseTest();
@@ -18,7 +18,8 @@ test.describe('Todo API - Schema Validation', () => {
         await todoApiPage.verifySuccessField(resetBody, true);
     });
 
-    test('TC001 - Verify schema of GET all todos response', async ({ todoApiPage }) => {
+    test.describe('Happy Path', () => {
+        test('TC001 - Verify schema of GET all todos response', async ({ todoApiPage }) => {
         // Get all todos
         const response = await todoApiPage.getAllTodos();
         const responseBody = await todoApiPage.getResponseBody(response);
@@ -37,7 +38,7 @@ test.describe('Todo API - Schema Validation', () => {
 
     test('TC002 - Verify schema of POST create todo response', async ({ todoApiPage }) => {
         // Create a new todo using test data from JSON
-        const todoData: TodoInput = testData.validTodoData.todoForGetVerification;
+        const todoData: CreateTodoRequest = testData.validTodoData.todoForGetVerification;
         const response = await todoApiPage.createTodo(todoData);
         const responseBody = await todoApiPage.getResponseBody(response);
 
@@ -52,9 +53,11 @@ test.describe('Todo API - Schema Validation', () => {
         await todoApiPage.verifyHasProperty(responseBody, 'todo');
         await todoApiPage.verifyHasProperty(responseBody.todo, 'id');
         await todoApiPage.verifyHasProperty(responseBody.todo, 'title');
+        });
     });
 
-    test('TC003 - Verify schema of error response (404 Not Found)', async ({ todoApiPage }) => {
+    test.describe('Error Cases', () => {
+        test('TC003 - Verify schema of error response (404 Not Found)', async ({ todoApiPage }) => {
         // Try to get a non-existent todo
         const response = await todoApiPage.getTodoById(TEST_IDS.NON_EXISTENT_ID);
         const responseBody = await todoApiPage.getResponseBody(response);
@@ -67,5 +70,6 @@ test.describe('Todo API - Schema Validation', () => {
 
         // Verify error response structure
         await todoApiPage.verifySuccessField(responseBody, false);
+        });
     });
 });

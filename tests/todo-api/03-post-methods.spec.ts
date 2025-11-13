@@ -1,6 +1,6 @@
 import { test, BaseTest } from '../base-test';
 import { STATUS_CODES } from '../../constants/test-constants';
-import { TodoInput } from '../../interfaces/todo.interface';
+import { CreateTodoRequest } from '../../interfaces/todo.schema';
 
 test.describe('Todo API - POST Methods', () => {
     const baseTest = new BaseTest();
@@ -18,9 +18,10 @@ test.describe('Todo API - POST Methods', () => {
         await todoApiPage.verifySuccessField(resetBody, true);
     });
 
-    test('TC007 - POST create todo with all required fields', async ({ todoApiPage }) => {
+    test.describe('Happy Path', () => {
+        test('TC007 - POST create todo with all required fields', async ({ todoApiPage }) => {
         // Get test data
-        const todoData: TodoInput = testData.validTodoData.minimalTodo;
+        const todoData: CreateTodoRequest = testData.validTodoData.minimalTodo;
 
         // Create a new todo with only required fields
         const response = await todoApiPage.createTodo(todoData);
@@ -36,11 +37,17 @@ test.describe('Todo API - POST Methods', () => {
         await todoApiPage.verifyTodoTitle(responseBody, todoData.title);
         await todoApiPage.verifyHasProperty(responseBody.todo, 'created_at');
         await todoApiPage.verifyHasProperty(responseBody.todo, 'updated_at');
+
+        // Confirm state by GET - verify todo was actually created
+        const getResponse = await todoApiPage.getTodoById(responseBody.todo.id);
+        const getTodo = await todoApiPage.getResponseBody(getResponse);
+        await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        await todoApiPage.verifyTodoTitle(getTodo, todoData.title);
     });
 
     test('TC008 - POST create todo with all fields', async ({ todoApiPage }) => {
         // Get test data
-        const todoData: TodoInput = testData.validTodoData.completeTodo;
+        const todoData: CreateTodoRequest = testData.validTodoData.completeTodo;
 
         // Create a new todo with all fields
         const response = await todoApiPage.createTodo(todoData);
@@ -56,11 +63,19 @@ test.describe('Todo API - POST Methods', () => {
         await todoApiPage.verifyTodoStatus(responseBody, todoData.status!);
         await todoApiPage.verifyTodoPriority(responseBody, todoData.priority!);
         await todoApiPage.verifyTodoUserId(responseBody, todoData.user_id!);
+
+        // Confirm state by GET - verify all fields persisted correctly
+        const getResponse = await todoApiPage.getTodoById(responseBody.todo.id);
+        const getTodo = await todoApiPage.getResponseBody(getResponse);
+        await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        await todoApiPage.verifyTodoDescription(getTodo, todoData.description!);
+        await todoApiPage.verifyTodoStatus(getTodo, todoData.status!);
+        await todoApiPage.verifyTodoPriority(getTodo, todoData.priority!);
     });
 
     test('TC009 - POST create todo with default values', async ({ todoApiPage }) => {
         // Get test data
-        const todoData: TodoInput = testData.validTodoData.todoWithDefaults;
+        const todoData: CreateTodoRequest = testData.validTodoData.todoWithDefaults;
 
         // Create todo with only title (should use defaults)
         const response = await todoApiPage.createTodo(todoData);
@@ -75,8 +90,32 @@ test.describe('Todo API - POST Methods', () => {
         await todoApiPage.verifyTodoUserId(responseBody, testData.expectedResponses.defaultValues.user_id);
     });
 
-    test('TC010 - POST create todo without title returns 400', async ({ todoApiPage }) => {
-        const todoData: TodoInput = testData.invalidTodoData.todoWithoutTitle;
+        test('TC011 - POST reset database successfully', async ({ todoApiPage }) => {
+            // Create some todos
+            await todoApiPage.createTodo(testData.sampleTodos.todo1);
+            await todoApiPage.createTodo(testData.sampleTodos.todo2);
+
+            // Reset database
+            const response = await todoApiPage.resetDatabase();
+            const responseBody = await todoApiPage.getResponseBody(response);
+
+            // Verify status code
+            await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+
+            // Verify response
+            await todoApiPage.verifySuccessField(responseBody, true);
+            await todoApiPage.verifyHasProperty(responseBody, 'reset');
+            await todoApiPage.verifyHasProperty(responseBody.reset, 'message');
+            await todoApiPage.verifyHasProperty(responseBody.reset, 'sample_data');
+
+            // Verify sample data counts
+            await todoApiPage.verifyResetSampleData(responseBody);
+        });
+    });
+
+    test.describe('Error Cases', () => {
+        test('TC010 - POST create todo without title returns 400', async ({ todoApiPage }) => {
+        const todoData: CreateTodoRequest = testData.invalidTodoData.todoWithoutTitle;
 
         const response = await todoApiPage.createTodo(todoData);
         const responseBody = await todoApiPage.getResponseBody(response);
@@ -84,27 +123,6 @@ test.describe('Todo API - POST Methods', () => {
         // Verify error response
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.BAD_REQUEST);
         await todoApiPage.verifySuccessField(responseBody, false);
-    });
-
-    test('TC011 - POST reset database successfully', async ({ todoApiPage }) => {
-        // Create some todos
-        await todoApiPage.createTodo(testData.sampleTodos.todo1);
-        await todoApiPage.createTodo(testData.sampleTodos.todo2);
-
-        // Reset database
-        const response = await todoApiPage.resetDatabase();
-        const responseBody = await todoApiPage.getResponseBody(response);
-
-        // Verify status code
-        await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
-
-        // Verify response
-        await todoApiPage.verifySuccessField(responseBody, true);
-        await todoApiPage.verifyHasProperty(responseBody, 'reset');
-        await todoApiPage.verifyHasProperty(responseBody.reset, 'message');
-        await todoApiPage.verifyHasProperty(responseBody.reset, 'sample_data');
-
-        // Verify sample data counts
-        await todoApiPage.verifyResetSampleData(responseBody);
+        });
     });
 });

@@ -33,7 +33,11 @@ export default defineConfig({
   reporter: [['html', { outputFolder: reportsDir, open: 'never' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: process.env.BASE_URL || 'https://www.saucedemo.com/',
+    baseURL: process.env.BASE_URL || 'https://material.playwrightvn.com/api/todo-app/v1/',
+    extraHTTPHeaders: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
     headless: process.env.HEADLESS === 'true' || false, // Set to true to run tests in headless mode

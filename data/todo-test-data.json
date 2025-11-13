@@ -62,12 +62,177 @@
       "description": "Testing creation",
       "status": "pending",
       "priority": "high"
+    },
+    "originalTodoForUpdate": {
+      "title": "Original Title",
+      "description": "Original description",
+      "status": "pending",
+      "priority": "low",
+      "user_id": 1
+    },
+    "updatedTodo": {
+      "title": "Updated Title",
+      "description": "Updated description",
+      "status": "completed",
+      "priority": "high",
+      "due_date": "2025-12-31 23:59:59",
+      "user_id": 1
+    },
+    "todoToUpdate": {
+      "title": "Todo to Update",
+      "status": "pending",
+      "priority": "medium"
+    },
+    "statusUpdateToInProgress": {
+      "status": "in_progress"
+    },
+    "statusUpdateToCompleted": {
+      "status": "completed"
+    },
+    "todoForPatch": {
+      "title": "Original Title For Patch",
+      "description": "Original description for patch",
+      "status": "pending",
+      "priority": "low"
+    },
+    "patchedTitle": {
+      "title": "Patched Title"
+    },
+    "todoStatusPatch": {
+      "title": "Todo Status Patch",
+      "description": "Testing patch",
+      "status": "pending",
+      "priority": "medium"
+    },
+    "todoToDelete": {
+      "title": "Todo to Delete",
+      "description": "This will be deleted",
+      "status": "pending",
+      "priority": "low"
+    },
+    "todoToRemove": {
+      "title": "Todo to Remove",
+      "status": "pending"
+    },
+    "todoDoubleDelete": {
+      "title": "Todo Double Delete"
+    },
+    "integrationTestTodo": {
+      "title": "Integration Test Todo",
+      "description": "Testing complete workflow",
+      "status": "pending",
+      "priority": "medium"
+    },
+    "updatedIntegrationTodo": {
+      "title": "Updated Integration Test Todo",
+      "description": "Testing complete workflow - updated",
+      "status": "completed",
+      "priority": "high"
+    },
+    "taskToBeUpdated": {
+      "title": "Task to Update",
+      "description": "Initial description",
+      "status": "pending",
+      "priority": "low"
+    },
+    "taskUpdatedMultipleTimes": {
+      "title": "Task Updated Multiple Times"
+    },
+    "multipleTodo1": {
+      "title": "Multiple Todo 1",
+      "description": "First todo",
+      "status": "pending",
+      "priority": "low"
+    },
+    "multipleTodo2": {
+      "title": "Multiple Todo 2",
+      "description": "Second todo",
+      "status": "pending",
+      "priority": "medium"
+    },
+    "multipleTodo3": {
+      "title": "Multiple Todo 3",
+      "description": "Third todo",
+      "status": "pending",
+      "priority": "high"
+    },
+    "newTodo1": {
+      "title": "New Todo 1",
+      "status": "pending",
+      "priority": "low"
+    },
+    "newTodo2": {
+      "title": "New Todo 2",
+      "status": "pending",
+      "priority": "medium"
+    },
+    "newTodo3": {
+      "title": "New Todo 3",
+      "status": "pending",
+      "priority": "high"
+    },
+    "originalTodoForComparison": {
+      "title": "Original Title",
+      "description": "Original description",
+      "status": "pending",
+      "priority": "medium"
+    },
+    "putUpdateComparison": {
+      "title": "Original Title",
+      "description": "Original description",
+      "status": "completed",
+      "priority": "medium"
+    },
+    "patchUpdateComparison": {
+      "status": "completed"
+    },
+    "invalidTodoNoTitle": {
+      "title": "",
+      "description": "Missing title"
+    },
+    "validTodo": {
+      "title": "Valid Title",
+      "description": "Valid description",
+      "status": "pending",
+      "priority": "low"
+    },
+    "invalidUpdateNoTitle": {
+      "title": "",
+      "status": "pending",
+      "priority": "low"
+    },
+    "validUpdate": {
+      "title": "Updated Valid Title",
+      "description": "Valid description",
+      "status": "completed",
+      "priority": "high"
+    },
+    "firstTodo": {
+      "title": "First Todo",
+      "description": "First in sequence",
+      "status": "pending",
+      "priority": "low"
+    },
+    "secondTodo": {
+      "title": "Second Todo",
+      "description": "Second in sequence",
+      "status": "pending",
+      "priority": "medium"
+    },
+    "thirdTodo": {
+      "title": "Third Todo",
+      "description": "Third in sequence",
+      "status": "pending",
+      "priority": "high"
     }
   },
   "invalidTodoData": {
     "todoWithoutTitle": {
       "title": "",
       "description": "Todo without title"
+    },
+    "emptyTitle": {
+      "title": ""
     }
   },
   "sampleTodos": {

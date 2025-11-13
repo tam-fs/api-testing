@@ -33,8 +33,8 @@ export const test = baseTest.extend<MyFixtures>(
     // menuPage: async ({ page }, use) => {
     //     await use(new MenuPage(page));
     // },
-    todoApiPage: async ({ page }, use) => {
-        await use(new TodoApiPage(page));
+    todoApiPage: async ({ request }, use) => {
+        await use(new TodoApiPage(request));
     }
 
 });
