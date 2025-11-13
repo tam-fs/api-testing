@@ -109,12 +109,8 @@ export const ResetDatabaseResponseSchema = z.object({
 
 export const ErrorResponseSchema = z.object({
     success: z.literal(false),
-    message: z.string().optional(),
-    error: z.string().optional(),
-}).refine(
-    (data) => data.message !== undefined || data.error !== undefined,
-    { message: 'Either message or error field must be present' }
-);
+    message: z.string(),
+});
 
 /**
  * Type exports (inferred from Zod schemas)
@@ -163,4 +159,10 @@ export enum Status {
     PENDING = 'pending',
     IN_PROGRESS = 'in_progress',
     COMPLETED = 'completed'
+}
+
+export enum Priority {
+    LOW = 'low',
+    MEDIUM = 'medium',
+    HIGH = 'high'
 }

@@ -20,109 +20,201 @@ test.describe('Todo API - POST Methods', () => {
 
     test.describe('Happy Path', () => {
         test('TC007 - POST create todo with all required fields', async ({ todoApiPage }) => {
+        console.log('\n=== TC007: CREATE TODO WITH REQUIRED FIELDS ===');
+
         // Get test data
         const todoData: CreateTodoRequest = testData.validTodoData.minimalTodo;
+        console.log('📋 Test Data (minimal todo):', JSON.stringify(todoData, null, 2));
 
         // Create a new todo with only required fields
+        console.log('\n🔄 Sending POST request to create todo...');
         const response = await todoApiPage.createTodo(todoData);
         const responseBody = await todoApiPage.getResponseBody(response);
+        console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
+        console.log('📊 Status Code:', response.status());
 
         // Verify status code
+        console.log('\n🔍 Verifying status code is 201 (CREATED)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
         // Verify response
+        console.log('\n🔍 Verifying response structure and fields...');
+        console.log('  - Checking success field is true');
         await todoApiPage.verifySuccessField(responseBody, true);
+        console.log('  - Checking response has "todo" property');
         await todoApiPage.verifyHasProperty(responseBody, 'todo');
+        console.log('  - Checking todo has "id" property');
         await todoApiPage.verifyHasProperty(responseBody.todo, 'id');
+        console.log('  - Verifying title matches:', todoData.title);
         await todoApiPage.verifyTodoTitle(responseBody, todoData.title);
+        console.log('  - Checking todo has "created_at" timestamp');
         await todoApiPage.verifyHasProperty(responseBody.todo, 'created_at');
+        console.log('  - Checking todo has "updated_at" timestamp');
         await todoApiPage.verifyHasProperty(responseBody.todo, 'updated_at');
 
         // Confirm state by GET - verify todo was actually created
+        console.log('\n🔄 Confirming todo creation by GET request...');
+        console.log('  - Getting todo with ID:', responseBody.todo.id);
         const getResponse = await todoApiPage.getTodoById(responseBody.todo.id);
         const getTodo = await todoApiPage.getResponseBody(getResponse);
+        console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
+        console.log('  - Verifying GET status code is 200');
         await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        console.log('  - Verifying title persisted correctly');
         await todoApiPage.verifyTodoTitle(getTodo, todoData.title);
-    });
 
-    test('TC008 - POST create todo with all fields', async ({ todoApiPage }) => {
-        // Get test data
-        const todoData: CreateTodoRequest = testData.validTodoData.completeTodo;
+        console.log('\n✅ TC007 PASSED - Todo created successfully with all required fields');
+        });
 
-        // Create a new todo with all fields
-        const response = await todoApiPage.createTodo(todoData);
-        const responseBody = await todoApiPage.getResponseBody(response);
+        test('TC008 - POST create todo with all fields', async ({ todoApiPage }) => {
+            console.log('\n=== TC008: CREATE TODO WITH ALL FIELDS ===');
 
-        // Verify status code
-        await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
+            // Get test data
+            const todoData: CreateTodoRequest = testData.validTodoData.completeTodo;
+            console.log('📋 Test Data (complete todo):', JSON.stringify(todoData, null, 2));
 
-        // Verify all fields
-        await todoApiPage.verifySuccessField(responseBody, true);
-        await todoApiPage.verifyTodoTitle(responseBody, todoData.title);
-        await todoApiPage.verifyTodoDescription(responseBody, todoData.description!);
-        await todoApiPage.verifyTodoStatus(responseBody, todoData.status!);
-        await todoApiPage.verifyTodoPriority(responseBody, todoData.priority!);
-        await todoApiPage.verifyTodoUserId(responseBody, todoData.user_id!);
+            // Create a new todo with all fields
+            console.log('\n🔄 Sending POST request to create todo with all fields...');
+            const response = await todoApiPage.createTodo(todoData);
+            const responseBody = await todoApiPage.getResponseBody(response);
+            console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
+            console.log('📊 Status Code:', response.status());
 
-        // Confirm state by GET - verify all fields persisted correctly
-        const getResponse = await todoApiPage.getTodoById(responseBody.todo.id);
-        const getTodo = await todoApiPage.getResponseBody(getResponse);
-        await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
-        await todoApiPage.verifyTodoDescription(getTodo, todoData.description!);
-        await todoApiPage.verifyTodoStatus(getTodo, todoData.status!);
-        await todoApiPage.verifyTodoPriority(getTodo, todoData.priority!);
-    });
+            // Verify status code
+            console.log('\n🔍 Verifying status code is 201 (CREATED)...');
+            await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
 
-    test('TC009 - POST create todo with default values', async ({ todoApiPage }) => {
-        // Get test data
-        const todoData: CreateTodoRequest = testData.validTodoData.todoWithDefaults;
+            // Verify all fields
+            console.log('\n🔍 Verifying all fields in response...');
+            console.log('  - Checking success field is true');
+            await todoApiPage.verifySuccessField(responseBody, true);
+            console.log('  - Verifying title:', todoData.title);
+            await todoApiPage.verifyTodoTitle(responseBody, todoData.title);
+            console.log('  - Verifying description:', todoData.description);
+            await todoApiPage.verifyTodoDescription(responseBody, todoData.description!);
+            console.log('  - Verifying status:', todoData.status);
+            await todoApiPage.verifyTodoStatus(responseBody, todoData.status!);
+            console.log('  - Verifying priority:', todoData.priority);
+            await todoApiPage.verifyTodoPriority(responseBody, todoData.priority!);
+            console.log('  - Verifying user_id:', todoData.user_id);
+            await todoApiPage.verifyTodoUserId(responseBody, todoData.user_id!);
 
-        // Create todo with only title (should use defaults)
-        const response = await todoApiPage.createTodo(todoData);
-        const responseBody = await todoApiPage.getResponseBody(response);
+            // Confirm state by GET - verify all fields persisted correctly
+            console.log('\n🔄 Confirming all fields persisted by GET request...');
+            console.log('  - Getting todo with ID:', responseBody.todo.id);
+            const getResponse = await todoApiPage.getTodoById(responseBody.todo.id);
+            const getTodo = await todoApiPage.getResponseBody(getResponse);
+            console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
+            console.log('  - Verifying GET status code is 200');
+            await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+            console.log('  - Verifying description persisted');
+            await todoApiPage.verifyTodoDescription(getTodo, todoData.description!);
+            console.log('  - Verifying status persisted');
+            await todoApiPage.verifyTodoStatus(getTodo, todoData.status!);
+            console.log('  - Verifying priority persisted');
+            await todoApiPage.verifyTodoPriority(getTodo, todoData.priority!);
 
-        // Verify status code
-        await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
+            console.log('\n✅ TC008 PASSED - Todo created with all fields and persisted correctly');
+        });
 
-        // Verify default values
-        await todoApiPage.verifyTodoStatus(responseBody, testData.expectedResponses.defaultValues.status);
-        await todoApiPage.verifyTodoPriority(responseBody, testData.expectedResponses.defaultValues.priority);
-        await todoApiPage.verifyTodoUserId(responseBody, testData.expectedResponses.defaultValues.user_id);
-    });
+        test('TC009 - POST create todo with default values', async ({ todoApiPage }) => {
+            console.log('\n=== TC009: CREATE TODO WITH DEFAULT VALUES ===');
+
+            // Get test data
+            const todoData: CreateTodoRequest = testData.validTodoData.todoWithDefaults;
+            console.log('📋 Test Data (only title, expecting defaults):', JSON.stringify(todoData, null, 2));
+            console.log('📋 Expected Default Values:', JSON.stringify(testData.expectedResponses.defaultValues, null, 2));
+
+            // Create todo with only title (should use defaults)
+            console.log('\n🔄 Sending POST request with minimal data...');
+            const response = await todoApiPage.createTodo(todoData);
+            const responseBody = await todoApiPage.getResponseBody(response);
+            console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
+            console.log('📊 Status Code:', response.status());
+
+            // Verify status code
+            console.log('\n🔍 Verifying status code is 201 (CREATED)...');
+            await todoApiPage.verifyStatusCode(response, STATUS_CODES.CREATED);
+
+            // Verify default values
+            console.log('\n🔍 Verifying API applied default values correctly...');
+            console.log('  - Expected default status:', testData.expectedResponses.defaultValues.status);
+            console.log('  - Actual status:', responseBody.todo.status);
+            await todoApiPage.verifyTodoStatus(responseBody, testData.expectedResponses.defaultValues.status);
+            console.log('  - Expected default priority:', testData.expectedResponses.defaultValues.priority);
+            console.log('  - Actual priority:', responseBody.todo.priority);
+            await todoApiPage.verifyTodoPriority(responseBody, testData.expectedResponses.defaultValues.priority);
+            console.log('  - Expected default user_id:', testData.expectedResponses.defaultValues.user_id);
+            console.log('  - Actual user_id:', responseBody.todo.user_id);
+            await todoApiPage.verifyTodoUserId(responseBody, testData.expectedResponses.defaultValues.user_id);
+
+            console.log('\n✅ TC009 PASSED - Default values applied correctly');
+        });
 
         test('TC011 - POST reset database successfully', async ({ todoApiPage }) => {
+            console.log('\n=== TC011: RESET DATABASE ===');
+
             // Create some todos
+            console.log('\n📝 Creating sample todos first...');
+            console.log('  - Creating todo 1:', JSON.stringify(testData.sampleTodos.todo1, null, 2));
             await todoApiPage.createTodo(testData.sampleTodos.todo1);
+            console.log('  - Creating todo 2:', JSON.stringify(testData.sampleTodos.todo2, null, 2));
             await todoApiPage.createTodo(testData.sampleTodos.todo2);
 
             // Reset database
+            console.log('\n🔄 Sending POST request to reset database...');
             const response = await todoApiPage.resetDatabase();
             const responseBody = await todoApiPage.getResponseBody(response);
+            console.log('✅ Reset Response received:', JSON.stringify(responseBody, null, 2));
+            console.log('📊 Status Code:', response.status());
 
             // Verify status code
+            console.log('\n🔍 Verifying status code is 200 (OK)...');
             await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
 
             // Verify response
+            console.log('\n🔍 Verifying reset response structure...');
+            console.log('  - Checking success field is true');
             await todoApiPage.verifySuccessField(responseBody, true);
+            console.log('  - Checking response has "reset" property');
             await todoApiPage.verifyHasProperty(responseBody, 'reset');
+            console.log('  - Checking reset has "message" property');
             await todoApiPage.verifyHasProperty(responseBody.reset, 'message');
+            console.log('  - Message:', responseBody.reset.message);
+            console.log('  - Checking reset has "sample_data" property');
             await todoApiPage.verifyHasProperty(responseBody.reset, 'sample_data');
 
             // Verify sample data counts
+            console.log('\n🔍 Verifying sample data was created...');
+            console.log('  - Sample data:', JSON.stringify(responseBody.reset.sample_data, null, 2));
             await todoApiPage.verifyResetSampleData(responseBody);
+
+            console.log('\n✅ TC011 PASSED - Database reset successfully with sample data');
         });
     });
 
     test.describe('Error Cases', () => {
         test('TC010 - POST create todo without title returns 400', async ({ todoApiPage }) => {
-        const todoData: CreateTodoRequest = testData.invalidTodoData.todoWithoutTitle;
+        console.log('\n=== TC010: CREATE TODO WITHOUT TITLE (ERROR CASE) ===');
 
+        const todoData: CreateTodoRequest = testData.invalidTodoData.todoWithoutTitle;
+        console.log('📋 Test Data (invalid - no title):', JSON.stringify(todoData, null, 2));
+
+        console.log('\n🔄 Sending POST request with invalid data (missing required field)...');
         const response = await todoApiPage.createTodo(todoData);
         const responseBody = await todoApiPage.getResponseBody(response);
+        console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
+        console.log('📊 Status Code:', response.status());
 
         // Verify error response
+        console.log('\n🔍 Verifying error response...');
+        console.log('  - Expecting status code 400 (BAD REQUEST)');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.BAD_REQUEST);
+        console.log('  - Checking success field is false');
         await todoApiPage.verifySuccessField(responseBody, false);
+        console.log('  - Error message:', responseBody.error || responseBody.message || 'No error message');
+
+        console.log('\n✅ TC010 PASSED - Invalid request properly rejected with 400 error');
         });
     });
 });

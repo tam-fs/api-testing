@@ -32,46 +32,80 @@ test.describe('Todo API - PUT Methods', () => {
 
     test.describe('Happy Path', () => {
         test('TC012 - PUT update todo with all fields', async ({ todoApiPage }) => {
-        const originalTodo: CreateTodoRequest = testData.validTodoData.originalTodoForUpdate;
+        console.log('\n=== TC012: PUT UPDATE TODO WITH ALL FIELDS ===');
 
+        const originalTodo: CreateTodoRequest = testData.validTodoData.originalTodoForUpdate;
+        console.log('📋 Original Todo Data:', JSON.stringify(originalTodo, null, 2));
+
+        console.log('\n🔄 Creating todo first...');
         const createResponse = await todoApiPage.createTodo(originalTodo);
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
         createdTodoIds.push(todoId);
+        console.log('✅ Todo created with ID:', todoId);
+        console.log('📋 Created Todo:', JSON.stringify(createBody.todo, null, 2));
 
         const updatedTodoData = testData.validTodoData.updatedTodo;
         const updatedTodo: UpdateTodoRequest = {
             id: todoId,
             ...updatedTodoData
         };
+        console.log('\n📋 Update Data (all fields):', JSON.stringify(updatedTodo, null, 2));
 
+        console.log(`\n🔄 Sending PUT request to update todo ID: ${todoId}...`);
         const response = await todoApiPage.updateTodo(updatedTodo);
         const responseBody = await todoApiPage.getResponseBody(response);
+        console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
+        console.log('📊 Status Code:', response.status());
 
+        console.log('\n🔍 Verifying status code is 200 (OK)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+
+        console.log('\n🔍 Verifying all updated fields in response...');
+        console.log('  - Checking success field is true');
         await todoApiPage.verifySuccessField(responseBody, true);
+        console.log('  - Verifying todo ID:', todoId);
         await todoApiPage.verifyTodoId(responseBody, todoId);
+        console.log('  - Verifying updated title:', updatedTodoData.title);
         await todoApiPage.verifyTodoTitle(responseBody, updatedTodoData.title);
+        console.log('  - Verifying updated description:', updatedTodoData.description);
         await todoApiPage.verifyTodoDescription(responseBody, updatedTodoData.description);
+        console.log('  - Verifying updated status:', updatedTodoData.status);
         await todoApiPage.verifyTodoStatus(responseBody, updatedTodoData.status);
+        console.log('  - Verifying updated priority:', updatedTodoData.priority);
         await todoApiPage.verifyTodoPriority(responseBody, updatedTodoData.priority);
 
         // Confirm state by GET - verify update was persisted
+        console.log('\n🔄 Confirming update persisted by GET request...');
+        console.log('  - Getting todo with ID:', todoId);
         const getResponse = await todoApiPage.getTodoById(todoId);
         const getTodo = await todoApiPage.getResponseBody(getResponse);
+        console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
+        console.log('  - Verifying GET status code is 200');
         await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        console.log('  - Verifying title persisted');
         await todoApiPage.verifyTodoTitle(getTodo, updatedTodoData.title);
+        console.log('  - Verifying description persisted');
         await todoApiPage.verifyTodoDescription(getTodo, updatedTodoData.description);
+        console.log('  - Verifying status persisted');
         await todoApiPage.verifyTodoStatus(getTodo, updatedTodoData.status);
+
+        console.log('\n✅ TC012 PASSED - Todo updated successfully with all fields and persisted correctly');
     });
 
     test('TC013 - PUT update todo status from pending to in_progress', async ({ todoApiPage }) => {
-        const originalTodo: CreateTodoRequest = testData.validTodoData.todoToUpdate;
+        console.log('\n=== TC013: PUT UPDATE TODO STATUS FROM PENDING TO IN_PROGRESS ===');
 
+        const originalTodo: CreateTodoRequest = testData.validTodoData.todoToUpdate;
+        console.log('📋 Original Todo Data:', JSON.stringify(originalTodo, null, 2));
+
+        console.log('\n🔄 Creating todo first...');
         const createResponse = await todoApiPage.createTodo(originalTodo);
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
         createdTodoIds.push(todoId);
+        console.log('✅ Todo created with ID:', todoId);
+        console.log('📋 Initial Status:', createBody.todo.status);
 
         const statusUpdate = testData.validTodoData.statusUpdateToInProgress;
         const updatedTodo: UpdateTodoRequest = {
@@ -80,23 +114,40 @@ test.describe('Todo API - PUT Methods', () => {
             status: Status.IN_PROGRESS,
             priority: originalTodo.priority
         };
+        console.log('\n📋 Status Update:', JSON.stringify(statusUpdate, null, 2));
+        console.log('📋 Update Request:', JSON.stringify(updatedTodo, null, 2));
 
+        console.log(`\n🔄 Sending PUT request to update status to IN_PROGRESS...`);
         const response = await todoApiPage.updateTodo(updatedTodo);
         const responseBody = await todoApiPage.getResponseBody(response);
+        console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
+        console.log('📊 Status Code:', response.status());
 
+        console.log('\n🔍 Verifying status code is 200 (OK)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+        console.log('\n🔍 Verifying status changed to IN_PROGRESS...');
         await todoApiPage.verifyTodoStatus(responseBody, statusUpdate.status);
+        console.log('  ✅ Status updated successfully');
 
         // Confirm state by GET - verify status change persisted
+        console.log('\n🔄 Confirming status change persisted by GET request...');
+        console.log('  - Getting todo with ID:', todoId);
         const getResponse = await todoApiPage.getTodoById(todoId);
         const getTodo = await todoApiPage.getResponseBody(getResponse);
+        console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
+        console.log('  - Verifying GET status code is 200');
         await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
+        console.log('  - Verifying status persisted as IN_PROGRESS');
         await todoApiPage.verifyTodoStatus(getTodo, statusUpdate.status);
+
+        console.log('\n✅ TC013 PASSED - Todo status updated successfully and persisted correctly');
         });
     });
 
     test.describe('Error Cases', () => {
         test('TC014 - PUT update non-existent todo returns 404', async ({ todoApiPage }) => {
+        console.log('\n=== TC014: PUT UPDATE NON-EXISTENT TODO (ERROR CASE) ===');
+
         const todoToUpdate = testData.validTodoData.todoToUpdate;
         const updateData: UpdateTodoRequest = {
             id: TEST_IDS.NON_EXISTENT_ID,
@@ -104,32 +155,56 @@ test.describe('Todo API - PUT Methods', () => {
             status: Status.PENDING,
             priority: todoToUpdate.priority
         };
+        console.log('📋 Update Data for non-existent ID:', JSON.stringify(updateData, null, 2));
 
+        console.log(`\n🔄 Sending PUT request for non-existent todo (ID: ${TEST_IDS.NON_EXISTENT_ID})...`);
         const response = await todoApiPage.updateTodo(updateData);
         const responseBody = await todoApiPage.getResponseBody(response);
+        console.log('✅ Error response received:', JSON.stringify(responseBody, null, 2));
+        console.log('📊 Status Code:', response.status());
 
+        console.log('\n🔍 Verifying status code is 404 (NOT FOUND)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.NOT_FOUND);
+        console.log('\n🔍 Verifying error response...');
+        console.log('  - Checking success field is false');
         await todoApiPage.verifySuccessField(responseBody, false);
+        console.log('  - Error message:', responseBody.error || responseBody.message || 'No error message');
+
+        console.log('\n✅ TC014 PASSED - Non-existent todo update properly returns 404 error');
     });
 
     test('TC015 - PUT update todo without title returns 400', async ({ todoApiPage }) => {
+        console.log('\n=== TC015: PUT UPDATE TODO WITHOUT TITLE (ERROR CASE) ===');
+
+        console.log('\n🔄 Creating todo first...');
         const createResponse = await todoApiPage.createTodo({
             title: testData.validTodoData.todoToUpdate.title
         });
         const createBody = await todoApiPage.getResponseBody(createResponse);
         const todoId = createBody.todo.id;
         createdTodoIds.push(todoId);
+        console.log('✅ Todo created with ID:', todoId);
 
         const invalidUpdate: UpdateTodoRequest = {
             id: todoId,
             title: testData.invalidTodoData.emptyTitle.title as any
         };
+        console.log('\n📋 Invalid Update Data (missing title):', JSON.stringify(invalidUpdate, null, 2));
 
+        console.log(`\n🔄 Sending PUT request with invalid data (empty/missing title)...`);
         const response = await todoApiPage.updateTodo(invalidUpdate);
         const responseBody = await todoApiPage.getResponseBody(response);
+        console.log('✅ Error response received:', JSON.stringify(responseBody, null, 2));
+        console.log('📊 Status Code:', response.status());
 
+        console.log('\n🔍 Verifying status code is 400 (BAD REQUEST)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.BAD_REQUEST);
+        console.log('\n🔍 Verifying error response...');
+        console.log('  - Checking success field is false');
         await todoApiPage.verifySuccessField(responseBody, false);
+        console.log('  - Error message:', responseBody.error || responseBody.message || 'No error message');
+
+        console.log('\n✅ TC015 PASSED - Invalid update request properly rejected with 400 error');
         });
     });
 });

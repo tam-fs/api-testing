@@ -1,137 +1,8 @@
-import { APIRequestContext, APIResponse, expect } from '@playwright/test';
-import { step } from '../../utils/logging';
-import { SchemaValidator } from '../../utils/schema-validator';
-import { CreateTodoRequest, UpdateTodoRequest, PatchTodoRequest } from '../../interfaces/todo.schema';
+import { APIResponse, expect } from '@playwright/test';
+import { step } from '../../../utils/logging';
+import { SchemaValidator } from '../../../utils/schema-validator';
 
-export class TodoApiPage {
-    private readonly request: APIRequestContext;
-
-    // API Endpoints - relative paths that will be appended to baseURL from playwright.config.ts
-    private readonly endpoints = {
-        todos: 'todos.php',
-        todo: 'todo.php',
-        reset: 'reset.php'
-    };
-
-    constructor(request: APIRequestContext) {
-        this.request = request;
-    }
-
-    // GET Methods
-    /**
-     * Get all todos
-     * @returns APIResponse
-     */
-    @step('Get all todos')
-    async getAllTodos(): Promise<APIResponse> {
-        return await this.request.get(this.endpoints.todos);
-    }
-
-    /**
-     * Get a specific todo by ID
-     * @param id - Todo ID
-     * @returns APIResponse
-     */
-    @step((id) => `Get todo by ID: ${id}`)
-    async getTodoById(id: number): Promise<APIResponse> {
-        return await this.request.get(this.endpoints.todo, {
-            params: { id }
-        });
-    }
-
-    // POST Methods
-    /**
-     * Create a new todo
-     * @param todoData - Todo data object
-     * @returns APIResponse
-     */
-    @step('Create a new todo')
-    async createTodo(todoData: CreateTodoRequest): Promise<APIResponse> {
-        return await this.request.post(this.endpoints.todo, {
-            data: todoData
-        });
-    }
-
-    /**
-     * Reset database with sample data
-     * @returns APIResponse
-     */
-    @step('Reset database with sample data')
-    async resetDatabase(): Promise<APIResponse> {
-        return await this.request.post(this.endpoints.reset);
-    }
-
-    // PUT Methods
-    /**
-     * Update an entire todo (all fields required)
-     * @param todoData - Complete todo data object
-     * @returns APIResponse
-     */
-    @step((todoData) => `Update entire todo with ID: ${todoData.id}`)
-    async updateTodo(todoData: UpdateTodoRequest): Promise<APIResponse> {
-        return await this.request.put(this.endpoints.todo, {
-            data: todoData
-        });
-    }
-
-    // PATCH Methods
-    /**
-     * Partially update a todo (only specified fields)
-     * @param todoData - Partial todo data object with at least id
-     * @returns APIResponse
-     */
-    @step((todoData) => `Partially update todo with ID: ${todoData.id}`)
-    async patchTodo(todoData: PatchTodoRequest): Promise<APIResponse> {
-        return await this.request.patch(this.endpoints.todo, {
-            data: todoData
-        });
-    }
-
-    // DELETE Methods
-    /**
-     * Delete a todo by ID
-     * @param id - Todo ID
-     * @returns APIResponse
-     */
-    @step((id) => `Delete todo with ID: ${id}`)
-    async deleteTodo(id: number): Promise<APIResponse> {
-        return await this.request.delete(this.endpoints.todo, {
-            data: { id }
-        });
-    }
-
-    // Utility Methods
-    /**
-     * Parse JSON response body
-     * @param response - API Response
-     * @returns Parsed JSON object
-     */
-    async getResponseBody(response: APIResponse): Promise<any> {
-        return await response.json();
-    }
-
-    /**
-     * Get response status code
-     * @param response - API Response
-     * @returns Status code
-     */
-    getStatusCode(response: APIResponse): number {
-        return response.status();
-    }
-
-    /**
-     * Get response headers
-     * @param response - API Response
-     * @returns Response headers
-     */
-    getHeaders(response: APIResponse): any {
-        return response.headers();
-    }
-
-    // ============================================
-    // VERIFICATION METHODS
-    // ============================================
-
+export class SchemaValidations {
     /**
      * Verify response status code
      * @param response - API Response
@@ -144,7 +15,7 @@ export class TodoApiPage {
         expect(response.ok(), `Expected response.ok() to be ${isSuccessStatus} for status ${expectedStatusCode}`).toBe(isSuccessStatus);
 
         // Then check exact status code
-        expect(this.getStatusCode(response)).toBe(expectedStatusCode);
+        expect(response.status()).toBe(expectedStatusCode);
     }
 
     /**
