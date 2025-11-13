@@ -44,10 +44,9 @@ test.describe('Todo API - PATCH Methods', () => {
         const response = await todoApiPage.patchTodo(patchData);
         const responseBody = await todoApiPage.getResponseBody(response);
         console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
-        console.log('📊 Status Code:', response.status());
-
-        console.log('\n🔍 Verifying status code is 200 (OK)...');
+        
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+        console.log('📊 Status Code:', response.status());
 
         // Verify response schema
         console.log('\n🔍 Verifying response schema...');
@@ -70,7 +69,7 @@ test.describe('Todo API - PATCH Methods', () => {
         const getResponse = await todoApiPage.getTodoById(todoId);
         const getTodo = await todoApiPage.getResponseBody(getResponse);
         console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
-        console.log('  - Verifying GET status code is 200');
+        console.log('  - Verifying GET status code is', getResponse.status());
         await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
         console.log('  - Verifying GET response schema');
         await todoApiPage.verifyGetTodoSchema(getTodo);
@@ -109,10 +108,9 @@ test.describe('Todo API - PATCH Methods', () => {
         const response = await todoApiPage.patchTodo(patchData);
         const responseBody = await todoApiPage.getResponseBody(response);
         console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
-        console.log('📊 Status Code:', response.status());
 
-        console.log('\n🔍 Verifying status code is 200 (OK)...');
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+        console.log('📊 Status Code:', response.status());
 
         // Verify response schema
         console.log('\n🔍 Verifying response schema...');
@@ -135,14 +133,18 @@ test.describe('Todo API - PATCH Methods', () => {
         const getResponse = await todoApiPage.getTodoById(todoId);
         const getTodo = await todoApiPage.getResponseBody(getResponse);
         console.log('✅ GET Response:', JSON.stringify(getTodo, null, 2));
-        console.log('  - Verifying GET status code is 200');
+        
         await todoApiPage.verifyStatusCode(getResponse, STATUS_CODES.OK);
-        console.log('  - Verifying GET response schema');
+        console.log('  - Verifying GET status code is', getResponse.status());
+
         await todoApiPage.verifyGetTodoSchema(getTodo);
-        console.log('  - Verifying new status persisted');
+        console.log('  - Verifying GET response schema');
+        
         await todoApiPage.verifyTodoStatus(getTodo, statusUpdate.status);
-        console.log('  - Verifying title remained unchanged');
+        console.log('  - Verifying new status persisted');
+        
         await todoApiPage.verifyTodoTitle(getTodo, originalTodo.title);
+        console.log('  - Verifying title remained unchanged');
 
         console.log('\n✅ TC017 PASSED - Only status updated successfully, other fields preserved');
         });

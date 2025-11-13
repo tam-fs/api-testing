@@ -33,10 +33,9 @@ test.describe('Todo API - DELETE Methods', () => {
         const response = await todoApiPage.deleteTodo(todoId);
         const responseBody = await todoApiPage.getResponseBody(response);
         console.log('✅ Response received:', JSON.stringify(responseBody, null, 2));
-        console.log('📊 Status Code:', response.status());
-
-        console.log('\n🔍 Verifying status code is 200 (OK)...');
+        
         await todoApiPage.verifyStatusCode(response, STATUS_CODES.OK);
+        console.log('📊 Status Code:', response.status());
 
         // Verify DELETE response schema (replaces manual structure checks)
         console.log('\n🔍 Verifying DELETE response schema...');
